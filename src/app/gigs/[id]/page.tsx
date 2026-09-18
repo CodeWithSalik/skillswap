@@ -7,90 +7,6 @@ import { getCategoryLabel, getCategoryIcon } from "@/lib/constants";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
 
-// Mock gig data for development
-const MOCK_GIGS: Record<string, Gig> = {
-  "1": {
-    _id: "1",
-    title: "Professional Logo & Brand Identity Design",
-    category: "design",
-    rate: 2500,
-    description:
-      "I will create a stunning, modern logo and complete brand identity package for your business. Includes logo, color palette, typography guide, and social media assets.\n\nWhat you get:\n• 3 initial logo concepts\n• Unlimited revisions on chosen concept\n• Full brand guidelines document\n• Social media kit (profile pics, banners)\n• All source files (AI, PSD, SVG, PNG)\n\nDelivery: 3-5 business days",
-    creatorName: "Ananya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  "2": {
-    _id: "2",
-    title: "YouTube Video Editing with Effects & Transitions",
-    category: "editing",
-    rate: 1500,
-    description:
-      "Professional video editing for YouTube content. I handle cuts, transitions, color grading, sound design, and thumbnail creation. Fast turnaround.",
-    creatorName: "Rahul",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-  },
-  "3": {
-    _id: "3",
-    title: "Python & DSA Tutoring for Beginners",
-    category: "tutoring",
-    rate: 800,
-    description:
-      "One-on-one tutoring sessions covering Python fundamentals, data structures, and algorithms. Perfect for interview prep or college coursework.",
-    creatorName: "Priya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-  },
-  "4": {
-    _id: "4",
-    title: "Custom Background Music & Jingles",
-    category: "music",
-    rate: 3000,
-    description:
-      "Original background music, jingles, and sound effects for your videos, podcasts, or apps. Multiple genres. Commercial license included.",
-    creatorName: "Dev",
-    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  "5": {
-    _id: "5",
-    title: "SEO Blog Writing & Content Strategy",
-    category: "writing",
-    rate: 1200,
-    description:
-      "SEO-optimized blog posts and articles for your website. Includes keyword research, compelling headlines, and engaging content that ranks.",
-    creatorName: "Sara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
-  },
-  "6": {
-    _id: "6",
-    title: "Full-Stack Web App Development",
-    category: "programming",
-    rate: 5000,
-    description:
-      "Build responsive web applications using React, Next.js, and Node.js. Clean code, modern UI, and deployed to production.",
-    creatorName: "Vikram",
-    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-  },
-  "7": {
-    _id: "7",
-    title: "Instagram Growth & Social Media Management",
-    category: "marketing",
-    rate: 2000,
-    description:
-      "Complete social media management including content calendar, post creation, hashtag strategy, and engagement optimization for Instagram.",
-    creatorName: "Zara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 210).toISOString(),
-  },
-  "8": {
-    _id: "8",
-    title: "UI/UX Design for Mobile Apps",
-    category: "design",
-    rate: 4000,
-    description:
-      "Beautiful, user-friendly mobile app designs in Figma. Includes wireframes, high-fidelity mockups, prototypes, and developer handoff.",
-    creatorName: "Karan",
-    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-  },
-};
-
 export default function GigDetailPage({
   params,
 }: {
@@ -117,15 +33,13 @@ export default function GigDetailPage({
       setIsLoading(true);
       try {
         const data = await fetchGig(id);
-        setGig(data);
-      } catch {
-        // Fallback to mock
-        const mockGig = MOCK_GIGS[id];
-        if (mockGig) {
-          setGig(mockGig);
+        if (data) {
+          setGig(data);
         } else {
           setNotFound(true);
         }
+      } catch {
+        setNotFound(true);
       } finally {
         setIsLoading(false);
       }
@@ -356,7 +270,7 @@ export default function GigDetailPage({
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    placeholder="Enter your name"
+                    placeholder="Your name"
                     required
                     className="w-full text-sm"
                   />
@@ -376,7 +290,7 @@ export default function GigDetailPage({
                   type="email"
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="name@domain.com"
+                  placeholder="you@example.com"
                   required
                   className="w-full text-sm"
                 />
@@ -394,7 +308,7 @@ export default function GigDetailPage({
                   id="booking-message"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Share details about your requirements, project scope, or timeline..."
+                  placeholder="Tell the creator what you need..."
                   rows={3}
                   className="w-full text-sm"
                 />
