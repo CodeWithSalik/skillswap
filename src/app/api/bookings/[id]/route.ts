@@ -35,42 +35,38 @@ export async function PATCH(
     const db = await getDb();
     const collection = db.collection("bookings");
 
-    // Find the booking
-    const booking = await collection.findOne({ _id: new ObjectId(id) });
+    const updatedAt = new Date().toISOString();
 
-    if (!booking) {
-      return NextResponse.json(
-        { error: "Booking not found." },
-        { status: 404 }
-      );
-    }
+    // Atomic update: only succeeds if the booking exists AND status is currently "Pending"
+    const updatedBooking = await collection.findOneAndUpdate(
+      { _id: new ObjectId(id), status: "Pending" },
+      { $set: { status, updatedAt } },
+      { returnDocument: "after" }
+    );
 
-    // Only Pending bookings can be updated
-    if (booking.status !== "Pending") {
+    if (!updatedBooking) {
+      // Check whether booking was not found or was already Accepted/Declined
+      const existing = await collection.findOne({ _id: new ObjectId(id) });
+      if (!existing) {
+        return NextResponse.json(
+          { error: "Booking not found." },
+          { status: 404 }
+        );
+      }
       return NextResponse.json(
         {
-          error: `This booking has already been ${booking.status.toLowerCase()}. Only pending bookings can be updated.`,
+          error: `This booking has already been ${existing.status.toLowerCase()}. Only pending bookings can be updated.`,
         },
         { status: 409 }
       );
     }
 
-    // Update the booking status
-    const updatedAt = new Date().toISOString();
-    await collection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { status, updatedAt } }
-    );
-
-    // Return the updated booking
-    const updatedBooking = {
-      ...booking,
-      _id: booking._id.toString(),
-      status,
-      updatedAt,
-    };
-
-    return NextResponse.json({ booking: updatedBooking });
+    return NextResponse.json({
+      booking: {
+        ...updatedBooking,
+        _id: updatedBooking._id.toString(),
+      },
+    });
   } catch (error) {
     console.error("PATCH /api/bookings/[id] error:", error);
     return NextResponse.json(
