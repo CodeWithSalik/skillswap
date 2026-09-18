@@ -8,92 +8,8 @@ import GigFilters from "@/components/gigs/GigFilters";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
-// Mock data for development — remove when Salik's API is ready
-const MOCK_GIGS: Gig[] = [
-  {
-    _id: "1",
-    title: "Professional Logo & Brand Identity Design",
-    category: "design",
-    rate: 2500,
-    description:
-      "I will create a stunning, modern logo and complete brand identity package for your business. Includes logo, color palette, typography guide, and social media assets.",
-    creatorName: "Ananya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    _id: "2",
-    title: "YouTube Video Editing with Effects & Transitions",
-    category: "editing",
-    rate: 1500,
-    description:
-      "Professional video editing for YouTube content. I handle cuts, transitions, color grading, sound design, and thumbnail creation. Fast turnaround.",
-    creatorName: "Rahul",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-  },
-  {
-    _id: "3",
-    title: "Python & DSA Tutoring for Beginners",
-    category: "tutoring",
-    rate: 800,
-    description:
-      "One-on-one tutoring sessions covering Python fundamentals, data structures, and algorithms. Perfect for interview prep or college coursework.",
-    creatorName: "Priya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-  },
-  {
-    _id: "4",
-    title: "Custom Background Music & Jingles",
-    category: "music",
-    rate: 3000,
-    description:
-      "Original background music, jingles, and sound effects for your videos, podcasts, or apps. Multiple genres. Commercial license included.",
-    creatorName: "Dev",
-    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  {
-    _id: "5",
-    title: "SEO Blog Writing & Content Strategy",
-    category: "writing",
-    rate: 1200,
-    description:
-      "SEO-optimized blog posts and articles for your website. Includes keyword research, compelling headlines, and engaging content that ranks.",
-    creatorName: "Sara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
-  },
-  {
-    _id: "6",
-    title: "Full-Stack Web App Development",
-    category: "programming",
-    rate: 5000,
-    description:
-      "Build responsive web applications using React, Next.js, and Node.js. Clean code, modern UI, and deployed to production.",
-    creatorName: "Vikram",
-    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-  },
-  {
-    _id: "7",
-    title: "Instagram Growth & Social Media Management",
-    category: "marketing",
-    rate: 2000,
-    description:
-      "Complete social media management including content calendar, post creation, hashtag strategy, and engagement optimization for Instagram.",
-    creatorName: "Zara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 210).toISOString(),
-  },
-  {
-    _id: "8",
-    title: "UI/UX Design for Mobile Apps",
-    category: "design",
-    rate: 4000,
-    description:
-      "Beautiful, user-friendly mobile app designs in Figma. Includes wireframes, high-fidelity mockups, prototypes, and developer handoff.",
-    creatorName: "Karan",
-    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-  },
-];
-
 export default function MarketplacePage() {
-  const { role } = useUser();
+  const { role, setRole } = useUser();
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -112,9 +28,8 @@ export default function MarketplacePage() {
         });
         setGigs(data);
       } catch {
-        // Fallback to mock data if API isn't ready
-        console.warn("API not available, using mock data");
-        setGigs(MOCK_GIGS);
+        setError("Unable to load gigs from server.");
+        setGigs([]);
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +40,7 @@ export default function MarketplacePage() {
     return () => clearTimeout(timeout);
   }, [search, selectedCategory]);
 
-  // Client-side filtering on mock data (when API handles it, this is redundant but harmless)
+  // Client-side filtering when search/category change
   const filteredGigs = useMemo(() => {
     return gigs.filter((gig) => {
       const matchesSearch =
@@ -144,10 +59,17 @@ export default function MarketplacePage() {
       <section className="border-b border-[#D8CEBC] bg-[#FFFDF8] py-12 sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-6 border border-[#D8CEBC] bg-[#F7F3EA] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#57534E]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
-              MARKETPLACE LEDGER · ISSUE NO. 01
-            </div>
+            {role === "creator" ? (
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-6 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]" />
+                CREATOR MARKETPLACE · ISSUE NO. 01
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-6 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]" />
+                CLIENT DISCOVERY · ISSUE NO. 01
+              </div>
+            )}
             <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#171717] leading-[1.08] mb-6 uppercase">
               Good work,
               <br />
@@ -156,34 +78,46 @@ export default function MarketplacePage() {
               the right person.
             </h1>
             <p className="text-base sm:text-lg text-[#57534E] leading-relaxed max-w-2xl mb-8">
-              A peer-to-peer creator marketplace where emerging talent monetize their skills
-              and clients discover and book verified services directly.
+              {role === "creator"
+                ? "Turn your specialized talent into verified services. List what you offer, set your terms, and manage client bookings on the creator ledger."
+                : "A peer-to-peer creator marketplace where clients discover verified creative, technical, and educational services directly from emerging talent."}
             </p>
             <div className="flex flex-wrap items-center gap-3">
               {role === "creator" ? (
-                <Link
-                  href="/gigs/new"
-                  className="btn-signal px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
-                >
-                  <span>Post a Gig</span>
-                  <span>→</span>
-                </Link>
+                <>
+                  <Link
+                    href="/gigs/new"
+                    className="btn-olive px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2 shadow-xs"
+                  >
+                    <span>POST GIG</span>
+                    <span>→</span>
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="btn-outline px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  >
+                    <span>CREATOR DESK</span>
+                    <span>→</span>
+                  </Link>
+                </>
               ) : (
-                <Link
-                  href="/bookings"
-                  className="btn-ink px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
-                >
-                  <span>Track My Bookings</span>
-                  <span>→</span>
-                </Link>
+                <>
+                  <a
+                    href="#marketplace-gigs"
+                    className="btn-signal px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2 shadow-xs"
+                  >
+                    <span>BROWSE GIGS</span>
+                    <span>↓</span>
+                  </a>
+                  <Link
+                    href="/bookings"
+                    className="btn-outline px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  >
+                    <span>MY BOOKINGS</span>
+                    <span>→</span>
+                  </Link>
+                </>
               )}
-              <a
-                href="#marketplace-gigs"
-                className="btn-outline px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
-              >
-                <span>Browse Ledger</span>
-                <span>↓</span>
-              </a>
             </div>
           </div>
         </div>
@@ -278,15 +212,17 @@ export default function MarketplacePage() {
 
         {/* Empty State */}
         {!isLoading && !error && filteredGigs.length === 0 && (
-          <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center max-w-lg mx-auto my-8 animate-fade-in">
-            <div className="font-mono text-2xl text-[#847F75] mb-3">⌕</div>
-            <h3 className="font-serif text-xl font-bold text-[#171717] mb-2">
-              No gigs found.
+          <div className="ledger-card-flat bg-[#FFFDF8] border-2 border-[#171717] p-10 sm:p-14 text-center max-w-lg mx-auto my-10 animate-fade-in shadow-xs">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm font-mono text-xl text-[#171717] mb-4">
+              ✦
+            </div>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 tracking-tight uppercase">
+              {search || selectedCategory ? "No matching gigs" : "NO GIGS YET."}
             </h3>
-            <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
+            <p className="text-sm sm:text-base text-[#57534E] mb-8 leading-relaxed max-w-md mx-auto">
               {search || selectedCategory
-                ? "Try another search or clear your filters to explore available creator listings."
-                : "No gigs have been published to the ledger yet. Switch to Creator mode to be the first!"}
+                ? "No services matched your filter criteria. Try a different search keyword or reset your filters."
+                : "Be the first creator to put a skill on the marketplace."}
             </p>
             {search || selectedCategory ? (
               <button
@@ -295,19 +231,19 @@ export default function MarketplacePage() {
                   setSearch("");
                   setSelectedCategory("");
                 }}
-                className="btn-ink px-5 py-2.5 text-xs font-mono uppercase tracking-wider"
+                className="btn-ink px-6 py-2.5 text-xs font-mono uppercase tracking-wider rounded-sm font-bold"
               >
-                Clear Filters
+                Reset Filters [✕]
               </button>
             ) : (
-              role === "creator" && (
-                <Link
-                  href="/gigs/new"
-                  className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block"
-                >
-                  Post the First Gig →
-                </Link>
-              )
+              <Link
+                href="/gigs/new"
+                onClick={() => setRole("creator")}
+                className="btn-olive px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold inline-flex items-center gap-2 rounded-sm shadow-xs"
+              >
+                <span>POST A GIG</span>
+                <span>→</span>
+              </Link>
             )}
           </div>
         )}

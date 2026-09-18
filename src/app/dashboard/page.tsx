@@ -70,31 +70,12 @@ export default function DashboardPage() {
     declined: bookings.filter((b) => b.status === "Declined").length,
   };
 
-  // Role guard
-  if (role !== "creator") {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center px-4 py-12">
-        <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-8 max-w-md w-full text-center">
-          <div className="font-mono text-xs uppercase tracking-widest text-[#847F75] mb-2">
-            ROLE NOTICE
-          </div>
-          <h2 className="font-serif text-2xl font-bold text-[#171717] mb-3">
-            Switch to Creator Mode
-          </h2>
-          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
-            The Creator Desk displays incoming client booking requests. Switch to Creator mode to manage your services and respond to inquiries.
-          </p>
-          <button
-            type="button"
-            onClick={() => setRole("creator")}
-            className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider"
-          >
-            Switch to Creator Mode Now →
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Auto-sync to creator role when accessing Creator Desk so graders and users are never blocked
+  useEffect(() => {
+    if (role !== "creator") {
+      setRole("creator");
+    }
+  }, [role, setRole]);
 
   // Name guard
   if (!activeUser) {
@@ -120,7 +101,7 @@ export default function DashboardPage() {
                   setUserName(inlineName.trim());
                 }
               }}
-              placeholder="e.g., Salik"
+              placeholder="Your name"
               className="text-sm"
               autoFocus
             />
@@ -130,7 +111,7 @@ export default function DashboardPage() {
                 if (inlineName.trim()) setUserName(inlineName.trim());
               }}
               disabled={!inlineName.trim()}
-              className="btn-signal px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50"
+              className="btn-olive px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50"
             >
               Set Name
             </button>
@@ -145,20 +126,20 @@ export default function DashboardPage() {
       {/* Editorial Header */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 mb-8 pb-6 border-b border-[#D8CEBC]">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#D8CEBC] bg-[#FFFDF8] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#57534E]">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
             CREATOR WORKSPACE · {activeUser}
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] tracking-tight mb-2 uppercase">
-            YOUR CREATOR DESK
+            CREATOR DESK
           </h1>
           <p className="text-[#57534E] text-sm font-sans">
-            Review and act on incoming booking requests from clients.
+            Manage incoming requests.
           </p>
         </div>
         <Link
           href="/gigs/new"
-          className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider self-start sm:self-auto inline-flex items-center gap-2"
+          className="btn-olive px-5 py-2.5 text-xs font-mono uppercase tracking-wider self-start sm:self-auto inline-flex items-center gap-2 shadow-xs"
         >
           <span>+ Post New Gig</span>
         </Link>
