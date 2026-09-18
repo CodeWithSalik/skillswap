@@ -134,13 +134,13 @@ export default function PostGigPage() {
       <div className="mb-8 pb-4 border-b border-[#D8CEBC]">
         <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
           <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
-          CREATOR DESK
+          CREATOR WORKSPACE · LIST A SERVICE
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] tracking-tight mb-2 uppercase">
-          YOUR CREATOR DESK
+          POST A GIG
         </h1>
         <p className="text-[#57534E] text-base leading-relaxed">
-          Turn something you&apos;re good at into something someone can book.
+          List your service so clients can discover and book your skills.
         </p>
       </div>
 

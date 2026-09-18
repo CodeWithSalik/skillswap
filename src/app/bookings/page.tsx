@@ -215,19 +215,19 @@ export default function MyBookingsPage() {
       {!isLoading && filteredBookings.length === 0 && (
         <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
           <div className="font-mono text-2xl text-[#847F75] mb-2">📋</div>
-          <h3 className="font-serif text-lg font-bold text-[#171717] mb-1">
-            No bookings found.
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching bookings" : "NO BOOKINGS YET"}
           </h3>
           <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
               ? `You have no bookings marked as "${filter}".`
-              : "When you book a gig from the marketplace, your requests and their progress will appear here."}
+              : "Browse the marketplace to find a creator and book a gig."}
           </p>
           <Link
             href="/"
-            className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block"
+            className="btn-signal px-6 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
-            Browse Marketplace Gigs →
+            BROWSE GIGS →
           </Link>
         </div>
       )}

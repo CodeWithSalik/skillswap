@@ -21,7 +21,7 @@ export default function GigFilters({
       <div className="flex flex-col md:flex-row gap-3">
         {/* Search Input */}
         <div className="relative flex-1">
-          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#847F75] pointer-events-none">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-[#847F75] pointer-events-none z-10">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -37,13 +37,14 @@ export default function GigFilters({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search skills, services..."
-            className="pl-10 pr-4 py-2.5 bg-[#FFFDF8] border border-[#D8CEBC] text-sm text-[#171717] focus:border-[#FF5A36] rounded-sm w-full font-sans"
+            style={{ paddingLeft: "2.75rem", paddingRight: search ? "3.5rem" : "1rem" }}
+            className="!pl-11 !pr-14 py-2.5 bg-[#FFFDF8] border border-[#D8CEBC] text-sm text-[#171717] focus:border-[#FF5A36] rounded-sm w-full font-sans transition-colors"
           />
           {search && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-[#847F75] hover:text-[#171717]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-[#847F75] hover:text-[#171717] z-10 px-1 py-0.5"
             >
               CLEAR
             </button>

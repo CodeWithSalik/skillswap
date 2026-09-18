@@ -35,6 +35,7 @@ export default function GigDetailPage({
         const data = await fetchGig(id);
         if (data) {
           setGig(data);
+          document.title = `${data.title} — SkillSwap`;
         } else {
           setNotFound(true);
         }
@@ -130,10 +131,10 @@ export default function GigDetailPage({
             ✓
           </div>
           <h2 className="font-serif text-3xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
-            REQUEST SENT
+            BOOKING REQUEST SENT
           </h2>
           <p className="text-[#57534E] text-base mb-6 leading-relaxed">
-            Your request is now waiting for the creator&apos;s response.
+            Your request has been sent to the creator.
           </p>
 
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] font-mono text-xs font-bold uppercase tracking-wider mb-8">

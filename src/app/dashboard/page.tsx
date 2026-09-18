@@ -265,17 +265,17 @@ export default function DashboardPage() {
       {!isLoading && filteredBookings.length === 0 && (
         <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
           <div className="font-mono text-2xl text-[#847F75] mb-2">📭</div>
-          <h3 className="font-serif text-lg font-bold text-[#171717] mb-1">
-            No booking requests found.
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching requests" : "NO INCOMING REQUESTS"}
           </h3>
           <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
               ? `No requests currently marked as "${filter}".`
-              : "When clients submit booking requests for your gigs, they will appear here for you to accept or decline."}
+              : "New client booking requests will appear here."}
           </p>
           <Link
             href="/gigs/new"
-            className="btn-outline px-4 py-2 text-xs font-mono uppercase tracking-wider inline-block"
+            className="btn-olive px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
             Post a New Gig →
           </Link>
