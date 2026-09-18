@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
   const { role, setRole, userName, setUserName } = useUser();
   const [showNameInput, setShowNameInput] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const handleSetName = () => {
     if (nameInput.trim()) {
@@ -17,100 +19,133 @@ export default function Header() {
     }
   };
 
+  const isActive = (path: string) => pathname === path;
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[#D8CEBC] bg-[#F7F3EA]/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 text-white font-bold text-lg transition-transform group-hover:scale-110">
-              S
-            </div>
-            <span className="text-xl font-bold gradient-text hidden sm:inline">
-              SkillSwap
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-            >
-              Marketplace
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Brand Wordmark */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="h-8 w-8 bg-[#171717] text-[#FFFDF8] flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-105">
+                S
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif text-xl tracking-tight font-bold text-[#171717] leading-none">
+                  SKILLSWAP
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#847F75] leading-tight mt-0.5">
+                  CREATOR LEDGER
+                </span>
+              </div>
             </Link>
-            {role === "creator" && (
-              <>
-                <Link
-                  href="/gigs/new"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  Post a Gig
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  Dashboard
-                </Link>
-              </>
-            )}
-            {role === "client" && (
-              <Link
-                href="/bookings"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-              >
-                My Bookings
-              </Link>
-            )}
-          </nav>
 
-          {/* Right side: Role Switcher + User Name */}
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1 border-l border-[#D8CEBC] pl-6 h-7">
+              <Link
+                href="/"
+                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                  isActive("/")
+                    ? "text-[#FF5A36] font-semibold"
+                    : "text-[#171717]/70 hover:text-[#171717]"
+                }`}
+              >
+                Marketplace
+              </Link>
+              {role === "creator" && (
+                <>
+                  <Link
+                    href="/gigs/new"
+                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                      isActive("/gigs/new")
+                        ? "text-[#FF5A36] font-semibold"
+                        : "text-[#171717]/70 hover:text-[#171717]"
+                    }`}
+                  >
+                    Post a Gig
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                      isActive("/dashboard")
+                        ? "text-[#FF5A36] font-semibold"
+                        : "text-[#171717]/70 hover:text-[#171717]"
+                    }`}
+                  >
+                    Creator Desk
+                  </Link>
+                </>
+              )}
+              {role === "client" && (
+                <Link
+                  href="/bookings"
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                    isActive("/bookings")
+                      ? "text-[#FF5A36] font-semibold"
+                      : "text-[#171717]/70 hover:text-[#171717]"
+                  }`}
+                >
+                  My Bookings
+                </Link>
+              )}
+            </nav>
+          </div>
+
+          {/* Right side: Demo Identity (Role Switcher + Display Name) */}
           <div className="flex items-center gap-3">
             {/* Role Switcher */}
-            <div className="flex items-center rounded-lg bg-[var(--color-bg-secondary)] p-0.5 border border-[var(--color-border)]">
+            <div className="flex items-center bg-[#EFE9DC] p-1 border border-[#D8CEBC] rounded-sm">
+              <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#847F75] px-2">
+                YOU ARE:
+              </span>
               <button
                 id="role-client-btn"
+                type="button"
                 onClick={() => setRole("client")}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm ${
                   role === "client"
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md"
-                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[#171717] text-[#FFFDF8] font-bold shadow-xs"
+                    : "text-[#171717]/60 hover:text-[#171717]"
                 }`}
               >
                 Client
               </button>
               <button
                 id="role-creator-btn"
+                type="button"
                 onClick={() => setRole("creator")}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm ${
                   role === "creator"
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
-                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[#FF5A36] text-white font-bold shadow-xs"
+                    : "text-[#171717]/60 hover:text-[#171717]"
                 }`}
               >
                 Creator
               </button>
             </div>
 
-            {/* User Name */}
+            {/* User Name Badge */}
             {userName ? (
               <button
+                type="button"
                 onClick={() => {
                   setNameInput(userName);
                   setShowNameInput(true);
                 }}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-primary)] transition-colors"
+                title="Click to change display name"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1 text-xs font-mono border border-[#D8CEBC] bg-[#FFFDF8] text-[#171717] hover:border-[#171717] transition-colors rounded-sm"
               >
-                <span className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
-                  {userName.charAt(0).toUpperCase()}
+                <span className="text-[#847F75]">Name:</span>
+                <span className="font-semibold text-[#171717] underline decoration-dotted decoration-[#D8CEBC] underline-offset-2">
+                  {userName}
                 </span>
-                {userName}
               </button>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowNameInput(true)}
-                className="hidden sm:flex px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-indigo-500/25 transition-all"
+                className="hidden sm:flex items-center px-3 py-1 text-xs font-mono uppercase tracking-wider border border-[#FF5A36] text-[#FF5A36] bg-[#FFF2EE] hover:bg-[#FF5A36] hover:text-white transition-colors rounded-sm"
               >
                 Set Name
               </button>
@@ -118,11 +153,12 @@ export default function Header() {
 
             {/* Mobile menu button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)]"
+              className="md:hidden p-2 text-[#171717] hover:bg-[#EFE9DC] border border-[#D8CEBC] rounded-sm"
               aria-label="Toggle navigation menu"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -133,14 +169,16 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-3 border-t border-[var(--color-border)] animate-fade-in">
-            <div className="flex flex-col gap-1">
+          <nav className="md:hidden py-4 border-t border-[#D8CEBC] bg-[#F7F3EA] animate-fade-in">
+            <div className="flex flex-col gap-2">
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
+                className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                  isActive("/") ? "bg-[#EFE9DC] text-[#FF5A36] font-bold" : "text-[#171717]"
+                }`}
               >
                 Marketplace
               </Link>
@@ -149,16 +187,20 @@ export default function Header() {
                   <Link
                     href="/gigs/new"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
+                    className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                      isActive("/gigs/new") ? "bg-[#EFE9DC] text-[#FF5A36] font-bold" : "text-[#171717]"
+                    }`}
                   >
                     Post a Gig
                   </Link>
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
+                    className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                      isActive("/dashboard") ? "bg-[#EFE9DC] text-[#FF5A36] font-bold" : "text-[#171717]"
+                    }`}
                   >
-                    Dashboard
+                    Creator Desk
                   </Link>
                 </>
               )}
@@ -166,59 +208,79 @@ export default function Header() {
                 <Link
                   href="/bookings"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
+                  className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                    isActive("/bookings") ? "bg-[#EFE9DC] text-[#FF5A36] font-bold" : "text-[#171717]"
+                  }`}
                 >
                   My Bookings
                 </Link>
               )}
-              {!userName && (
+              <div className="pt-2 border-t border-[#D8CEBC] px-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowNameInput(true);
                     setMobileMenuOpen(false);
                   }}
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-left text-indigo-400 hover:bg-[var(--color-bg-secondary)]"
+                  className="text-xs font-mono uppercase text-[#FF5A36] underline"
                 >
-                  Set Your Name
+                  {userName ? `Display Name: ${userName} (Edit)` : "Set Display Name"}
                 </button>
-              )}
+              </div>
             </div>
           </nav>
         )}
       </div>
 
-      {/* Name Input Modal */}
+      {/* Demo Identity Name Modal */}
       {showNameInput && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card p-6 w-full max-w-sm mx-4 animate-slide-up">
-            <h3 className="text-lg font-semibold mb-1">
-              {userName ? "Update Your Name" : "Welcome to SkillSwap!"}
-            </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-4">
-              Enter a display name to get started. No account needed.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#171717]/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="ledger-card-flat bg-[#FFFDF8] p-6 w-full max-w-sm border-2 border-[#171717] shadow-xl animate-slide-up">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#D8CEBC]">
+              <h3 className="font-mono text-xs uppercase tracking-widest text-[#171717] font-bold">
+                DEMO IDENTITY
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowNameInput(false)}
+                className="text-[#847F75] hover:text-[#171717] text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-sm text-[#57534E] mb-4 leading-relaxed">
+              Enter a display name to test booking or posting gigs. No password or account is required.
             </p>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSetName()}
-              placeholder="Your name (e.g., Alex)"
-              className="mb-4"
-              autoFocus
-            />
+            <div className="mb-4">
+              <label htmlFor="modal-name-input" className="block text-xs font-mono uppercase tracking-wider text-[#171717] mb-1.5">
+                Display Name
+              </label>
+              <input
+                id="modal-name-input"
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSetName()}
+                placeholder="e.g., Salik or Alex"
+                className="w-full text-sm"
+                autoFocus
+              />
+            </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setShowNameInput(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)]"
+                className="flex-1 py-2 text-xs font-mono uppercase tracking-wider border border-[#D8CEBC] hover:bg-[#EFE9DC] text-[#171717] transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSetName}
                 disabled={!nameInput.trim()}
-                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-sm font-semibold hover:shadow-lg hover:shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2 text-xs font-mono uppercase tracking-wider bg-[#FF5A36] text-white font-semibold hover:bg-[#E64B29] disabled:opacity-50 transition-colors"
               >
-                Continue
+                Save
               </button>
             </div>
           </div>

@@ -7,7 +7,7 @@ export const GIG_CATEGORIES: {
   icon: string;
 }[] = [
   { value: "design", label: "Design", icon: "🎨" },
-  { value: "editing", label: "Video Editing", icon: "🎬" },
+  { value: "editing", label: "Editing", icon: "🎬" },
   { value: "tutoring", label: "Tutoring", icon: "📚" },
   { value: "music", label: "Music", icon: "🎵" },
   { value: "writing", label: "Writing", icon: "✍️" },
@@ -19,22 +19,25 @@ export const GIG_CATEGORIES: {
 /** Status display metadata */
 export const BOOKING_STATUS_CONFIG: Record<
   BookingStatus,
-  { label: string; color: string; bgColor: string }
+  { label: string; color: string; bgColor: string; borderColor: string }
 > = {
   Pending: {
     label: "Pending",
-    color: "text-amber-700",
-    bgColor: "bg-amber-100",
+    color: "text-[#92400E]",
+    bgColor: "bg-[#FEF3C7]",
+    borderColor: "border-[#FDE68A]",
   },
   Accepted: {
     label: "Accepted",
-    color: "text-emerald-700",
-    bgColor: "bg-emerald-100",
+    color: "text-[#3D4733]",
+    bgColor: "bg-[#EAEFE4]",
+    borderColor: "border-[#B5C2A8]",
   },
   Declined: {
     label: "Declined",
-    color: "text-red-700",
-    bgColor: "bg-red-100",
+    color: "text-[#991B1B]",
+    bgColor: "bg-[#FEE2E2]",
+    borderColor: "border-[#FCA5A5]",
   },
 };
 
