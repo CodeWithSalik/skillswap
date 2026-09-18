@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { getNavigationItems, canAccessRoute } from "@/lib/rbac";
+import { UserRole } from "@/lib/types";
 
 export default function Header() {
   const { role, setRole, userName, setUserName } = useUser();
@@ -11,6 +13,17 @@ export default function Header() {
   const [nameInput, setNameInput] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleRoleSwitch = (newRole: UserRole) => {
+    if (newRole === role) return;
+    setRole(newRole);
+    if (!canAccessRoute(newRole, pathname)) {
+      router.push("/");
+    }
+  };
+
+  const navItems = getNavigationItems(role);
 
   const handleSetName = () => {
     if (nameInput.trim()) {
@@ -42,83 +55,22 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-1 border-l border-[#D8CEBC] pl-6 h-7">
-              <Link
-                href="/"
-                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
-                  isActive("/")
-                    ? role === "creator"
-                      ? "text-[#3D4733] font-bold"
-                      : "text-[#FF5A36] font-bold"
-                    : "text-[#171717]/70 hover:text-[#171717]"
-                }`}
-              >
-                Marketplace
-              </Link>
-              {role === "creator" ? (
-                <>
-                  <Link
-                    href="/gigs/new"
-                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
-                      isActive("/gigs/new")
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                    isActive(item.href)
+                      ? role === "creator"
                         ? "text-[#3D4733] font-bold"
-                        : "text-[#171717]/70 hover:text-[#171717]"
-                    }`}
-                  >
-                    Post a Gig
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
-                      isActive("/dashboard")
-                        ? "text-[#3D4733] font-bold"
-                        : "text-[#171717]/70 hover:text-[#171717]"
-                    }`}
-                  >
-                    Creator Desk
-                  </Link>
-                  <span className="text-[#D8CEBC] mx-1">·</span>
-                  <Link
-                    href="/bookings"
-                    onClick={() => setRole("client")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#FF5A36]`}
-                    title="Switch to client bookings"
-                  >
-                    My Bookings (Client)
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/bookings"
-                    className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
-                      isActive("/bookings")
-                        ? "text-[#FF5A36] font-bold"
-                        : "text-[#171717]/70 hover:text-[#171717]"
-                    }`}
-                  >
-                    My Bookings
-                  </Link>
-                  <span className="text-[#D8CEBC] mx-1">·</span>
-                  <Link
-                    href="/gigs/new"
-                    onClick={() => setRole("creator")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#3D4733]`}
-                    title="Switch to creator mode and post a gig"
-                  >
-                    Post a Gig (Creator)
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setRole("creator")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#3D4733]`}
-                    title="Switch to creator desk"
-                  >
-                    Creator Desk (Creator)
-                  </Link>
-                </>
-              )}
+                        : "text-[#FF5A36] font-bold"
+                      : "text-[#171717]/70 hover:text-[#171717]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -147,7 +99,7 @@ export default function Header() {
               <button
                 id="role-client-btn"
                 type="button"
-                onClick={() => setRole("client")}
+                onClick={() => handleRoleSwitch("client")}
                 className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm font-bold ${
                   role === "client"
                     ? "bg-[#FF5A36] text-white shadow-xs"
@@ -159,7 +111,7 @@ export default function Header() {
               <button
                 id="role-creator-btn"
                 type="button"
-                onClick={() => setRole("creator")}
+                onClick={() => handleRoleSwitch("creator")}
                 className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm font-bold ${
                   role === "creator"
                     ? "bg-[#3D4733] text-[#FFFDF8] shadow-xs"
@@ -237,83 +189,22 @@ export default function Header() {
               )}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
-                  isActive("/")
-                    ? role === "creator"
-                      ? "bg-[#EAEFE4] text-[#3D4733] font-bold"
-                      : "bg-[#FFF2EE] text-[#FF5A36] font-bold"
-                    : "text-[#171717]"
-                }`}
-              >
-                Marketplace
-              </Link>
-              {role === "creator" ? (
-                <>
-                  <Link
-                    href="/gigs/new"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
-                      isActive("/gigs/new") ? "bg-[#EAEFE4] text-[#3D4733] font-bold" : "text-[#171717]"
-                    }`}
-                  >
-                    Post a Gig
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
-                      isActive("/dashboard") ? "bg-[#EAEFE4] text-[#3D4733] font-bold" : "text-[#171717]"
-                    }`}
-                  >
-                    Creator Desk
-                  </Link>
-                  <Link
-                    href="/bookings"
-                    onClick={() => {
-                      setRole("client");
-                      setMobileMenuOpen(false);
-                    }}
-                    className="px-3 py-2 text-sm font-mono uppercase tracking-wider text-[#171717]/60"
-                  >
-                    My Bookings (Client)
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/bookings"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
-                      isActive("/bookings") ? "bg-[#FFF2EE] text-[#FF5A36] font-bold" : "text-[#171717]"
-                    }`}
-                  >
-                    My Bookings
-                  </Link>
-                  <Link
-                    href="/gigs/new"
-                    onClick={() => {
-                      setRole("creator");
-                      setMobileMenuOpen(false);
-                    }}
-                    className="px-3 py-2 text-sm font-mono uppercase tracking-wider text-[#171717]/60"
-                  >
-                    Post a Gig (Creator)
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => {
-                      setRole("creator");
-                      setMobileMenuOpen(false);
-                    }}
-                    className="px-3 py-2 text-sm font-mono uppercase tracking-wider text-[#171717]/60"
-                  >
-                    Creator Desk (Creator)
-                  </Link>
-                </>
-              )}
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                    isActive(item.href)
+                      ? role === "creator"
+                        ? "bg-[#EAEFE4] text-[#3D4733] font-bold"
+                        : "bg-[#FFF2EE] text-[#FF5A36] font-bold"
+                      : "text-[#171717]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
               <div className="pt-2 border-t border-[#D8CEBC] px-3">
                 <button
                   type="button"

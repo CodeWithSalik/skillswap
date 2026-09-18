@@ -6,8 +6,18 @@ import { fetchBookings } from "@/lib/api";
 import { useUser } from "@/context/UserContext";
 import Link from "next/link";
 
+import RoleGuard from "@/components/auth/RoleGuard";
+
 export default function MyBookingsPage() {
-  const { role, setRole, userName, setUserName } = useUser();
+  return (
+    <RoleGuard allowedRole="client">
+      <MyBookingsContent />
+    </RoleGuard>
+  );
+}
+
+function MyBookingsContent() {
+  const { userName, setUserName } = useUser();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "Pending" | "Accepted" | "Declined">("all");
@@ -46,33 +56,6 @@ export default function MyBookingsPage() {
     accepted: bookings.filter((b) => b.status === "Accepted").length,
     declined: bookings.filter((b) => b.status === "Declined").length,
   };
-
-  // Access state: Client mode required
-  if (role !== "client") {
-    return (
-      <div className="min-h-[55vh] flex items-center justify-center px-4 py-12">
-        <div className="ledger-card bg-[#FFFDF8] border-2 border-[#171717] p-8 sm:p-10 max-w-md w-full text-center animate-fade-in shadow-xs">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-4 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
-            CLIENT MODE REQUIRED
-          </div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 uppercase tracking-tight">
-            Client Mode Required
-          </h2>
-          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
-            This page is part of the Client workspace. Switch to Client Mode to continue.
-          </p>
-          <button
-            type="button"
-            onClick={() => setRole("client")}
-            className="btn-signal w-full py-3 text-xs font-mono uppercase tracking-wider font-bold rounded-sm inline-flex items-center justify-center gap-2 shadow-xs"
-          >
-            <span>SWITCH TO CLIENT MODE →</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Name guard
   if (!activeUser) {
