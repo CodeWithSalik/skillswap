@@ -170,16 +170,17 @@ export default function GigDetailPage({
   // Loading
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12">
-        <div className="glass-card p-8 animate-pulse">
-          <div className="h-6 w-24 bg-[var(--color-bg-secondary)] rounded-full mb-4" />
-          <div className="h-8 w-3/4 bg-[var(--color-bg-secondary)] rounded mb-4" />
-          <div className="h-4 w-1/4 bg-[var(--color-bg-secondary)] rounded mb-6" />
-          <div className="space-y-2">
-            <div className="h-4 w-full bg-[var(--color-bg-secondary)] rounded" />
-            <div className="h-4 w-full bg-[var(--color-bg-secondary)] rounded" />
-            <div className="h-4 w-2/3 bg-[var(--color-bg-secondary)] rounded" />
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-16">
+        <div className="ledger-card p-8 bg-[#FFFDF8] border border-[#D8CEBC] animate-pulse space-y-4">
+          <div className="h-4 w-28 bg-[#EBE5D8] rounded-sm" />
+          <div className="h-8 w-3/4 bg-[#EBE5D8] rounded-sm" />
+          <div className="h-4 w-1/3 bg-[#EBE5D8] rounded-sm pb-4 border-b border-[#D8CEBC]/50" />
+          <div className="space-y-2 py-4">
+            <div className="h-3 w-full bg-[#EBE5D8] rounded-sm" />
+            <div className="h-3 w-full bg-[#EBE5D8] rounded-sm" />
+            <div className="h-3 w-4/5 bg-[#EBE5D8] rounded-sm" />
           </div>
+          <div className="h-12 w-full bg-[#EBE5D8] rounded-sm" />
         </div>
       </div>
     );
@@ -188,16 +189,16 @@ export default function GigDetailPage({
   // Not found
   if (notFound || !gig) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass-card p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">😕</div>
-          <h2 className="text-xl font-bold mb-2">Gig Not Found</h2>
-          <p className="text-[var(--color-text-secondary)] mb-4">
-            This gig may have been removed or doesn&apos;t exist.
+      <div className="min-h-[50vh] flex items-center justify-center px-4">
+        <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-8 max-w-md w-full text-center">
+          <div className="font-mono text-2xl text-[#847F75] mb-2">⌕</div>
+          <h2 className="font-serif text-2xl font-bold text-[#171717] mb-2">Gig Not Found</h2>
+          <p className="text-sm text-[#57534E] mb-6">
+            This service listing could not be found or has been removed.
           </p>
           <Link
             href="/"
-            className="inline-flex px-4 py-2 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-sm hover:border-[var(--color-primary)] transition-colors"
+            className="btn-outline inline-block px-5 py-2.5 text-xs font-mono uppercase tracking-wider"
           >
             Back to Marketplace
           </Link>
@@ -209,27 +210,33 @@ export default function GigDetailPage({
   // Booking confirmation
   if (bookingSuccess) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass-card p-8 max-w-md w-full text-center animate-slide-up">
-          <div className="text-5xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
-          <p className="text-[var(--color-text-secondary)] mb-2">
-            Your booking for &ldquo;{gig.title}&rdquo; has been submitted.
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
+        <div className="ledger-card bg-[#FFFDF8] border-2 border-[#171717] p-8 sm:p-10 max-w-lg w-full text-center animate-slide-up shadow-sm">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] mb-4 font-mono text-xl">
+            ✓
+          </div>
+          <h2 className="font-serif text-3xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            REQUEST SENT
+          </h2>
+          <p className="text-[#57534E] text-base mb-6 leading-relaxed">
+            Your request is now waiting for the creator&apos;s response.
           </p>
-          <p className="text-sm text-[var(--color-text-muted)] mb-6">
-            Status: <span className="text-amber-400 font-medium">Pending</span>{" "}
-            — {gig.creatorName} will review your request.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] font-mono text-xs font-bold uppercase tracking-wider mb-8">
+            <span className="h-2 w-2 rounded-full bg-[#B45309] animate-pulse"></span>
+            STATUS: PENDING
+          </div>
+
+          <div className="pt-6 border-t border-[#D8CEBC] flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               href="/bookings"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all"
+              className="btn-signal px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider text-center"
             >
-              View My Bookings
+              View My Bookings →
             </Link>
             <Link
               href="/"
-              className="px-5 py-2.5 rounded-xl border border-[var(--color-border)] text-sm font-medium hover:bg-[var(--color-bg-secondary)] transition-colors"
+              className="btn-outline px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider text-center"
             >
               Browse More Gigs
             </Link>
@@ -240,171 +247,200 @@ export default function GigDetailPage({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
+    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10 sm:py-16 animate-fade-in">
       {/* Back link */}
       <Link
         href="/"
-        className="inline-flex items-center gap-1 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors mb-6"
+        className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-[#57534E] hover:text-[#171717] transition-colors mb-8"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        Back to Marketplace
+        <span>←</span> Back to Marketplace
       </Link>
 
       {/* Gig Detail Card */}
-      <div className="glass-card p-6 sm:p-8">
-        {/* Header */}
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+      <div className="ledger-card bg-[#FFFDF8] border border-[#D8CEBC] p-6 sm:p-10">
+        {/* Top Ledger Header */}
+        <div className="flex flex-wrap items-baseline justify-between gap-4 pb-4 mb-6 border-b border-[#D8CEBC]">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#57534E] font-bold flex items-center gap-1.5">
             <span>{getCategoryIcon(gig.category)}</span>
-            {getCategoryLabel(gig.category)}
+            <span>{getCategoryLabel(gig.category)}</span>
           </span>
-          <span className="text-2xl font-bold text-emerald-400">
-            ₹{gig.rate.toLocaleString()}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6">{gig.title}</h1>
-
-        {/* Creator */}
-        <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-[var(--color-bg)]/50 border border-[var(--color-border-light)]">
-          <span className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-            {gig.creatorName.charAt(0).toUpperCase()}
-          </span>
-          <div>
-            <p className="font-medium">{gig.creatorName}</p>
-            <p className="text-xs text-[var(--color-text-muted)]">
-              Posted{" "}
-              {new Date(gig.createdAt).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
+          <div className="text-right">
+            <span className="text-xs font-mono uppercase text-[#847F75] mr-2">Rate:</span>
+            <span className="font-mono text-3xl font-bold text-[#171717]">
+              ₹{gig.rate.toLocaleString("en-IN")}
+            </span>
           </div>
         </div>
 
-        {/* Description */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-3">About This Gig</h2>
-          <div className="text-[var(--color-text-secondary)] whitespace-pre-line leading-relaxed">
+        {/* Title */}
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] mb-6 leading-tight">
+          {gig.title}
+        </h1>
+
+        {/* Creator Info Ledger Row */}
+        <div className="flex items-center justify-between p-4 mb-8 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 bg-[#171717] text-[#FFFDF8] flex items-center justify-center font-serif text-sm font-bold">
+              {gig.creatorName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-mono text-xs uppercase font-bold text-[#171717]">
+                {gig.creatorName}
+              </p>
+              <p className="text-xs text-[#847F75]">
+                Creator · {getCategoryLabel(gig.category)}
+              </p>
+            </div>
+          </div>
+          <span className="font-mono text-xs text-[#847F75]">
+            Listed {new Date(gig.createdAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </span>
+        </div>
+
+        {/* Description Section */}
+        <div className="mb-10">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-[#847F75] font-bold mb-3">
+            ABOUT THIS SERVICE
+          </h2>
+          <div className="text-[#171717] whitespace-pre-line leading-relaxed text-base font-sans">
             {gig.description}
           </div>
         </div>
 
-        {/* Book Button / Form */}
+        {/* Primary CTA / Booking Form */}
         {!showBookingForm ? (
-          <button
-            id="book-gig-btn"
-            onClick={() => setShowBookingForm(true)}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-indigo-500/25 transition-all hover:-translate-y-0.5"
-          >
-            Book This Gig — ₹{gig.rate.toLocaleString()}
-          </button>
+          <div className="pt-6 border-t border-[#D8CEBC]">
+            <button
+              id="book-gig-btn"
+              type="button"
+              onClick={() => setShowBookingForm(true)}
+              className="btn-signal w-full py-3.5 text-center font-mono text-sm uppercase tracking-wider rounded-sm font-bold flex items-center justify-center gap-2"
+            >
+              <span>BOOK THIS GIG</span>
+              <span>— ₹{gig.rate.toLocaleString("en-IN")}</span>
+              <span>→</span>
+            </button>
+          </div>
         ) : (
-          <form
-            onSubmit={handleBooking}
-            className="border-t border-[var(--color-border)] pt-6 space-y-4 animate-slide-up"
-          >
-            <h3 className="text-lg font-semibold">Book This Gig</h3>
-
-            {/* Client name */}
-            <div>
-              <label
-                htmlFor="booking-client-name"
-                className="block text-sm font-medium mb-1.5"
-              >
-                Your Name <span className="text-red-400">*</span>
-              </label>
-              {userName ? (
-                <input
-                  id="booking-client-name"
-                  type="text"
-                  value={userName}
-                  disabled
-                  className="opacity-60 cursor-not-allowed"
-                />
-              ) : (
-                <input
-                  id="booking-client-name"
-                  type="text"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  placeholder="Your display name"
-                  required
-                />
-              )}
+          <div className="border-t-2 border-[#171717] pt-8 mt-8 animate-slide-up">
+            <div className="flex items-center justify-between mb-6 pb-2 border-b border-[#D8CEBC]">
+              <h3 className="font-serif text-2xl font-bold text-[#171717] tracking-tight">
+                REQUEST THIS SERVICE
+              </h3>
+              <span className="font-mono text-xs uppercase tracking-wider text-[#847F75]">
+                LEDGER FORM
+              </span>
             </div>
 
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="booking-email"
-                className="block text-sm font-medium mb-1.5"
-              >
-                Your Email <span className="text-red-400">*</span>
-              </label>
-              <input
-                id="booking-email"
-                type="email"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-
-            {/* Message */}
-            <div>
-              <label
-                htmlFor="booking-message"
-                className="block text-sm font-medium mb-1.5"
-              >
-                Message to Creator{" "}
-                <span className="text-[var(--color-text-muted)]">
-                  (optional)
-                </span>
-              </label>
-              <textarea
-                id="booking-message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Tell the creator about your project or requirements..."
-                rows={3}
-              />
-            </div>
-
-            {/* Error */}
-            {bookingError && (
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                {bookingError}
+            <form onSubmit={handleBooking} className="space-y-5">
+              {/* Client Name Field */}
+              <div>
+                <label
+                  htmlFor="booking-client-name"
+                  className="block font-mono text-xs uppercase tracking-wider text-[#171717] mb-1.5 font-bold"
+                >
+                  Name <span className="text-[#DC2626]">*</span>
+                </label>
+                {userName ? (
+                  <div className="flex items-center justify-between p-2.5 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm">
+                    <span className="font-mono text-sm text-[#171717]">{userName}</span>
+                    <span className="font-mono text-[10px] uppercase text-[#847F75]">Active Client</span>
+                  </div>
+                ) : (
+                  <input
+                    id="booking-client-name"
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="Enter your name"
+                    required
+                    className="w-full text-sm"
+                  />
+                )}
               </div>
-            )}
 
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowBookingForm(false)}
-                className="flex-1 py-2.5 rounded-xl border border-[var(--color-border)] text-sm font-medium hover:bg-[var(--color-bg-secondary)] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={
-                  (!userName && !clientName.trim()) ||
-                  !clientEmail.trim() ||
-                  isBooking
-                }
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isBooking ? "Booking..." : "Confirm Booking"}
-              </button>
-            </div>
-          </form>
+              {/* Email Field */}
+              <div>
+                <label
+                  htmlFor="booking-email"
+                  className="block font-mono text-xs uppercase tracking-wider text-[#171717] mb-1.5 font-bold"
+                >
+                  Email <span className="text-[#DC2626]">*</span>
+                </label>
+                <input
+                  id="booking-email"
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="name@domain.com"
+                  required
+                  className="w-full text-sm"
+                />
+              </div>
+
+              {/* Message Field */}
+              <div>
+                <label
+                  htmlFor="booking-message"
+                  className="block font-mono text-xs uppercase tracking-wider text-[#171717] mb-1.5 font-bold"
+                >
+                  Message <span className="text-[#847F75] font-normal lowercase">(optional)</span>
+                </label>
+                <textarea
+                  id="booking-message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Share details about your requirements, project scope, or timeline..."
+                  rows={3}
+                  className="w-full text-sm"
+                />
+              </div>
+
+              {/* Inline Error State */}
+              {bookingError && (
+                <div className="p-4 bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] text-xs font-mono rounded-sm">
+                  <p className="font-bold mb-1">Notice:</p>
+                  <p>{bookingError}</p>
+                  {bookingError.includes("declined") && (
+                    <div className="mt-3 pt-2 border-t border-[#FCA5A5]/60">
+                      <Link
+                        href="/"
+                        className="btn-outline inline-block px-3 py-1 text-[11px] font-mono uppercase tracking-wider"
+                      >
+                        Browse Other Gigs →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Form Action Buttons */}
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBookingForm(false)}
+                  className="btn-outline flex-1 py-3 text-xs font-mono uppercase tracking-wider text-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    (!userName && !clientName.trim()) ||
+                    !clientEmail.trim() ||
+                    isBooking
+                  }
+                  className="btn-signal flex-1 py-3 text-xs font-mono uppercase tracking-wider font-bold text-center disabled:opacity-50"
+                >
+                  {isBooking ? "Submitting Request..." : "Confirm Booking Request"}
+                </button>
+              </div>
+            </form>
+          </div>
         )}
       </div>
     </div>

@@ -7,45 +7,47 @@ interface GigCardProps {
 }
 
 export default function GigCard({ gig }: GigCardProps) {
+  const formattedDate = new Date(gig.createdAt).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+
   return (
-    <Link href={`/gigs/${gig._id}`} className="block group">
-      <article className="glass-card p-5 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/5">
-        {/* Category badge */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+    <Link href={`/gigs/${gig._id}`} className="block group h-full">
+      <article className="ledger-card p-6 h-full flex flex-col bg-[#FFFDF8] border border-[#D8CEBC] hover:border-[#171717] hover:shadow-xs transition-all">
+        {/* Top Header: Category + Rate */}
+        <div className="flex items-baseline justify-between gap-2 mb-3 pb-2 border-b border-[#D8CEBC]/50">
+          <span className="font-mono text-[11px] uppercase tracking-widest text-[#57534E] font-semibold flex items-center gap-1">
             <span>{getCategoryIcon(gig.category)}</span>
-            {getCategoryLabel(gig.category)}
+            <span>{getCategoryLabel(gig.category)}</span>
           </span>
-          <span className="text-lg font-bold text-emerald-400">
-            ₹{gig.rate.toLocaleString()}
+          <span className="font-mono text-base font-bold text-[#171717]">
+            ₹{gig.rate.toLocaleString("en-IN")}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-semibold text-[var(--color-text)] mb-2 line-clamp-2 group-hover:text-indigo-400 transition-colors">
+        <h3 className="font-serif text-lg font-bold text-[#171717] mb-2.5 line-clamp-2 group-hover:text-[#FF5A36] transition-colors leading-snug">
           {gig.title}
         </h3>
 
         {/* Description */}
-        <p className="text-sm text-[var(--color-text-secondary)] mb-4 line-clamp-3 flex-1">
+        <p className="text-sm text-[#57534E] mb-6 line-clamp-3 flex-1 leading-relaxed">
           {gig.description}
         </p>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-[var(--color-border-light)]">
-          <div className="flex items-center gap-2">
-            <span className="h-7 w-7 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
-              {gig.creatorName.charAt(0).toUpperCase()}
-            </span>
-            <span className="text-sm text-[var(--color-text-secondary)]">
+        {/* Editorial Footer */}
+        <div className="flex items-end justify-between pt-4 border-t border-[#D8CEBC]/70 mt-auto">
+          <div className="flex flex-col">
+            <span className="font-mono text-xs uppercase font-bold text-[#171717] tracking-wider">
               {gig.creatorName}
             </span>
+            <span className="text-[11px] text-[#847F75] font-sans">
+              {getCategoryLabel(gig.category)} · {formattedDate}
+            </span>
           </div>
-          <span className="text-xs text-[var(--color-text-muted)]">
-            {new Date(gig.createdAt).toLocaleDateString("en-IN", {
-              day: "numeric",
-              month: "short",
-            })}
+          <span className="font-mono text-xs uppercase tracking-wider text-[#FF5A36] font-bold inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            View gig <span>→</span>
           </span>
         </div>
       </article>
