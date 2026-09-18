@@ -4,31 +4,46 @@ import { useState, useEffect } from "react";
 import { Booking } from "@/lib/types";
 import { fetchBookings } from "@/lib/api";
 import { useUser } from "@/context/UserContext";
-import { BOOKING_STATUS_CONFIG } from "@/lib/constants";
 import Link from "next/link";
 
+import RoleGuard from "@/components/auth/RoleGuard";
+
 export default function MyBookingsPage() {
-  const { userName } = useUser();
+  return (
+    <RoleGuard allowedRole="client">
+      <MyBookingsContent />
+    </RoleGuard>
+  );
+}
+
+function MyBookingsContent() {
+  const { userName, setUserName } = useUser();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "Pending" | "Accepted" | "Declined">("all");
+  const [inlineName, setInlineName] = useState("");
+
+  const activeUser = userName || inlineName.trim();
 
   useEffect(() => {
     async function loadBookings() {
-      if (!userName) return;
+      if (!activeUser) {
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
-        const data = await fetchBookings({ clientName: userName });
+        const data = await fetchBookings({ clientName: activeUser });
         setBookings(data);
       } catch {
-        console.warn("API not available");
+        console.warn("API not available or network error");
         setBookings([]);
       } finally {
         setIsLoading(false);
       }
     }
     loadBookings();
-  }, [userName]);
+  }, [activeUser]);
 
   const filteredBookings =
     filter === "all"
@@ -43,178 +58,249 @@ export default function MyBookingsPage() {
   };
 
   // Name guard
-  if (!userName) {
+  if (!activeUser) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass-card p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">✏️</div>
-          <h2 className="text-xl font-bold mb-2">Set Your Name First</h2>
-          <p className="text-[var(--color-text-secondary)]">
-            Click &ldquo;Set Name&rdquo; in the header to view your bookings.
+      <div className="min-h-[50vh] flex items-center justify-center px-4 py-12">
+        <div className="ledger-card bg-[#FFFDF8] border border-[#D8CEBC] p-8 max-w-md w-full text-center">
+          <div className="font-mono text-xs uppercase tracking-widest text-[#847F75] mb-2">
+            CLIENT IDENTITY
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-[#171717] mb-3">
+            Set Your Client Name
+          </h2>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
+            Enter your display name to view and track your submitted gig booking requests.
           </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inlineName}
+              onChange={(e) => setInlineName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && inlineName.trim()) {
+                  setUserName(inlineName.trim());
+                }
+              }}
+              placeholder="Your name"
+              className="text-sm"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (inlineName.trim()) setUserName(inlineName.trim());
+              }}
+              disabled={!inlineName.trim()}
+              className="btn-signal px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50 font-semibold"
+            >
+              Set Name
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-16 animate-fade-in">
+      {/* Editorial Header */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 mb-8 pb-6 border-b border-[#D8CEBC]">
         <div>
-          <h1 className="text-3xl font-bold mb-1">My Bookings</h1>
-          <p className="text-[var(--color-text-secondary)]">
-            Track the status of your gig bookings
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
+            CLIENT LEDGER · {activeUser}
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] tracking-tight mb-2 uppercase">
+            MY BOOKINGS
+          </h1>
+          <p className="text-[#57534E] text-sm font-sans">
+            Track requests you&apos;ve sent.
           </p>
         </div>
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-cyan-500/25 transition-all text-sm"
+          className="btn-outline px-5 py-2.5 text-xs font-mono uppercase tracking-wider self-start sm:self-auto inline-flex items-center gap-2"
         >
-          Browse Gigs
+          <span>Browse More Gigs →</span>
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      {/* Stats Tally Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Total", value: stats.total, color: "text-[var(--color-text)]" },
-          { label: "Pending", value: stats.pending, color: "text-amber-400" },
-          { label: "Accepted", value: stats.accepted, color: "text-emerald-400" },
-          { label: "Declined", value: stats.declined, color: "text-red-400" },
+          { label: "Total", value: stats.total, color: "text-[#171717]", bg: "bg-[#FFFDF8]", border: "border-[#D8CEBC]" },
+          { label: "Pending", value: stats.pending, color: "text-[#92400E]", bg: "bg-[#FEF3C7]", border: "border-[#FDE68A]" },
+          { label: "Accepted", value: stats.accepted, color: "text-[#3D4733]", bg: "bg-[#EAEFE4]", border: "border-[#B5C2A8]" },
+          { label: "Declined", value: stats.declined, color: "text-[#991B1B]", bg: "bg-[#FEE2E2]", border: "border-[#FCA5A5]" },
         ].map((stat) => (
-          <div key={stat.label} className="glass-card p-4 text-center">
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-[var(--color-text-muted)] mt-1">
+          <div
+            key={stat.label}
+            className={`p-4 border ${stat.border} ${stat.bg} rounded-sm text-left`}
+          >
+            <span className="font-mono text-[11px] uppercase tracking-widest text-[#57534E] block mb-1">
               {stat.label}
-            </p>
+            </span>
+            <span className={`font-mono text-3xl font-bold ${stat.color}`}>
+              {stat.value}
+            </span>
           </div>
         ))}
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 p-1 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] mb-6 overflow-x-auto">
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-1 mb-6 pb-2 border-b border-[#D8CEBC] overflow-x-auto">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#847F75] pr-2 flex-shrink-0">
+          STATUS:
+        </span>
         {(["all", "Pending", "Accepted", "Declined"] as const).map((f) => (
           <button
             key={f}
+            type="button"
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-colors whitespace-nowrap ${
               filter === f
-                ? "bg-[var(--color-bg-elevated)] text-[var(--color-text)] shadow-sm"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                ? "bg-[#171717] text-[#FFFDF8] font-bold"
+                : "bg-[#FFFDF8] border border-[#D8CEBC] text-[#57534E] hover:border-[#171717]"
             }`}
           >
-            {f === "all" ? "All" : f}
-            {f !== "all" && (
-              <span className="ml-1.5 text-xs opacity-60">
-                {f === "Pending"
-                  ? stats.pending
-                  : f === "Accepted"
-                  ? stats.accepted
-                  : stats.declined}
-              </span>
-            )}
+            {f === "all" ? "All Bookings" : f}
+            <span className="ml-1.5 opacity-60">
+              (
+              {f === "all"
+                ? stats.total
+                : f === "Pending"
+                ? stats.pending
+                : f === "Accepted"
+                ? stats.accepted
+                : stats.declined}
+              )
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Loading */}
+      {/* Loading Skeletons */}
       {isLoading && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="glass-card p-5 animate-pulse">
+            <div key={i} className="ledger-card p-6 bg-[#FFFDF8] border border-[#D8CEBC] animate-pulse space-y-3">
               <div className="flex justify-between">
-                <div className="h-5 w-48 bg-[var(--color-bg-secondary)] rounded" />
-                <div className="h-6 w-20 bg-[var(--color-bg-secondary)] rounded-full" />
+                <div className="h-4 w-48 bg-[#EBE5D8] rounded-sm" />
+                <div className="h-6 w-20 bg-[#EBE5D8] rounded-sm" />
               </div>
-              <div className="h-4 w-32 bg-[var(--color-bg-secondary)] rounded mt-3" />
+              <div className="h-3 w-36 bg-[#EBE5D8] rounded-sm" />
             </div>
           ))}
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty State */}
       {!isLoading && filteredBookings.length === 0 && (
-        <div className="text-center py-16 animate-fade-in">
-          <div className="text-5xl mb-4">📋</div>
-          <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
-          <p className="text-[var(--color-text-secondary)] mb-4">
+        <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
+          <div className="font-mono text-2xl text-[#847F75] mb-2">📋</div>
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching bookings" : "NO BOOKINGS YET"}
+          </h3>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
-              ? `No ${filter.toLowerCase()} bookings found.`
-              : "When you book a gig, it will appear here with its status."}
+              ? `You have no bookings marked as "${filter}".`
+              : "Browse the marketplace to find a creator and book a gig."}
           </p>
           <Link
             href="/"
-            className="inline-flex px-4 py-2 rounded-lg text-sm font-medium text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+            className="btn-signal px-6 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
-            Browse gigs to get started →
+            BROWSE GIGS →
           </Link>
         </div>
       )}
 
-      {/* Booking list */}
+      {/* Booking List */}
       {!isLoading && filteredBookings.length > 0 && (
-        <div className="space-y-3 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
           {filteredBookings.map((booking) => {
-            const statusConfig = BOOKING_STATUS_CONFIG[booking.status];
+            const isPending = booking.status === "Pending";
+            const isAccepted = booking.status === "Accepted";
+            const isDeclined = booking.status === "Declined";
+
             return (
               <div
                 key={booking._id}
-                className="glass-card p-5 transition-all hover:border-[rgba(99,102,241,0.3)]"
+                className="ledger-card p-6 bg-[#FFFDF8] border border-[#D8CEBC] transition-all hover:border-[#171717]"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* Gig title */}
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold truncate mb-1">
-                          {booking.gigTitle}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--color-text-secondary)]">
-                          <span className="flex items-center gap-1.5">
-                            by
-                            <span className="h-5 w-5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold">
-                              {booking.creatorName.charAt(0).toUpperCase()}
-                            </span>
-                            {booking.creatorName}
-                          </span>
-                          <span className="text-xs text-[var(--color-text-muted)]">
-                            Booked{" "}
-                            {new Date(booking.createdAt).toLocaleDateString(
-                              "en-IN",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </span>
-                        </div>
-                      </div>
+                    {/* Gig Title */}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#F7F3EA] border border-[#D8CEBC] text-[#57534E] rounded-sm font-semibold">
+                        SERVICE
+                      </span>
+                      <h3 className="font-serif text-lg font-bold text-[#171717] truncate">
+                        {booking.gigTitle}
+                      </h3>
                     </div>
-                    {/* Message */}
+
+                    {/* Creator & Timestamp */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-[#57534E] mb-3">
+                      <span>
+                        Creator: <strong className="text-[#171717]">{booking.creatorName}</strong>
+                      </span>
+                      <span>·</span>
+                      <span className="text-[#847F75]">
+                        Booked {new Date(booking.createdAt).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Client Message */}
                     {booking.message && (
-                      <p className="mt-2 text-sm text-[var(--color-text-muted)] italic">
+                      <div className="p-3 bg-[#F7F3EA] border border-[#D8CEBC]/70 rounded-sm font-sans text-sm text-[#171717] leading-relaxed mb-3">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-[#847F75] block mb-1">
+                          Your Note:
+                        </span>
                         &ldquo;{booking.message}&rdquo;
-                      </p>
+                      </div>
+                    )}
+
+                    {/* DP1 Clear Rejection Explanation */}
+                    {isDeclined && (
+                      <div className="p-3 bg-[#FEE2E2] border border-[#FCA5A5] rounded-sm text-xs text-[#991B1B] font-mono leading-relaxed mt-2">
+                        <p className="font-bold mb-1">Notice (DP1):</p>
+                        <p className="mb-2">
+                          The creator wasn&apos;t able to take this request.
+                        </p>
+                        <Link
+                          href="/"
+                          className="inline-flex items-center gap-1 font-bold underline hover:text-[#7F1D1D] uppercase tracking-wider text-[11px]"
+                        >
+                          <span>BROWSE OTHER GIGS</span>
+                          <span>→</span>
+                        </Link>
+                      </div>
                     )}
                   </div>
 
-                  {/* Status badge */}
-                  <div className="flex items-center gap-2 sm:flex-shrink-0">
-                    <span
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold ${statusConfig.color} ${statusConfig.bgColor}`}
-                    >
-                      {statusConfig.label}
-                    </span>
-                    {booking.status === "Declined" && (
-                      <Link
-                        href="/"
-                        className="px-3 py-1.5 rounded-lg text-xs font-medium text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500/10 transition-colors"
-                      >
-                        Browse Again
-                      </Link>
+                  {/* Status Badge */}
+                  <div className="flex flex-col items-start md:items-end flex-shrink-0 pt-2 md:pt-0">
+                    {isPending && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 font-mono text-xs uppercase tracking-wider font-bold rounded-sm bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#B45309] animate-pulse"></span>
+                        PENDING
+                      </span>
+                    )}
+                    {isAccepted && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 font-mono text-xs uppercase tracking-wider font-bold rounded-sm bg-[#EAEFE4] text-[#3D4733] border border-[#B5C2A8]">
+                        <span>✓</span> ACCEPTED
+                      </span>
+                    )}
+                    {isDeclined && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 font-mono text-xs uppercase tracking-wider font-bold rounded-sm bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]">
+                        <span>✕</span> DECLINED
+                      </span>
                     )}
                   </div>
                 </div>

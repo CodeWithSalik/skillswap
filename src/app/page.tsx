@@ -8,92 +8,8 @@ import GigFilters from "@/components/gigs/GigFilters";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 
-// Mock data for development — remove when Salik's API is ready
-const MOCK_GIGS: Gig[] = [
-  {
-    _id: "1",
-    title: "Professional Logo & Brand Identity Design",
-    category: "design",
-    rate: 2500,
-    description:
-      "I will create a stunning, modern logo and complete brand identity package for your business. Includes logo, color palette, typography guide, and social media assets.",
-    creatorName: "Ananya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  {
-    _id: "2",
-    title: "YouTube Video Editing with Effects & Transitions",
-    category: "editing",
-    rate: 1500,
-    description:
-      "Professional video editing for YouTube content. I handle cuts, transitions, color grading, sound design, and thumbnail creation. Fast turnaround.",
-    creatorName: "Rahul",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-  },
-  {
-    _id: "3",
-    title: "Python & DSA Tutoring for Beginners",
-    category: "tutoring",
-    rate: 800,
-    description:
-      "One-on-one tutoring sessions covering Python fundamentals, data structures, and algorithms. Perfect for interview prep or college coursework.",
-    creatorName: "Priya",
-    createdAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
-  },
-  {
-    _id: "4",
-    title: "Custom Background Music & Jingles",
-    category: "music",
-    rate: 3000,
-    description:
-      "Original background music, jingles, and sound effects for your videos, podcasts, or apps. Multiple genres. Commercial license included.",
-    creatorName: "Dev",
-    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-  },
-  {
-    _id: "5",
-    title: "SEO Blog Writing & Content Strategy",
-    category: "writing",
-    rate: 1200,
-    description:
-      "SEO-optimized blog posts and articles for your website. Includes keyword research, compelling headlines, and engaging content that ranks.",
-    creatorName: "Sara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
-  },
-  {
-    _id: "6",
-    title: "Full-Stack Web App Development",
-    category: "programming",
-    rate: 5000,
-    description:
-      "Build responsive web applications using React, Next.js, and Node.js. Clean code, modern UI, and deployed to production.",
-    creatorName: "Vikram",
-    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-  },
-  {
-    _id: "7",
-    title: "Instagram Growth & Social Media Management",
-    category: "marketing",
-    rate: 2000,
-    description:
-      "Complete social media management including content calendar, post creation, hashtag strategy, and engagement optimization for Instagram.",
-    creatorName: "Zara",
-    createdAt: new Date(Date.now() - 1000 * 60 * 210).toISOString(),
-  },
-  {
-    _id: "8",
-    title: "UI/UX Design for Mobile Apps",
-    category: "design",
-    rate: 4000,
-    description:
-      "Beautiful, user-friendly mobile app designs in Figma. Includes wireframes, high-fidelity mockups, prototypes, and developer handoff.",
-    creatorName: "Karan",
-    createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-  },
-];
-
 export default function MarketplacePage() {
-  const { role, userName } = useUser();
+  const { role, setRole } = useUser();
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -112,9 +28,8 @@ export default function MarketplacePage() {
         });
         setGigs(data);
       } catch {
-        // Fallback to mock data if API isn't ready
-        console.warn("API not available, using mock data");
-        setGigs(MOCK_GIGS);
+        setError("Unable to load gigs from server.");
+        setGigs([]);
       } finally {
         setIsLoading(false);
       }
@@ -125,7 +40,7 @@ export default function MarketplacePage() {
     return () => clearTimeout(timeout);
   }, [search, selectedCategory]);
 
-  // Client-side filtering on mock data (when API handles it, this is redundant but harmless)
+  // Client-side filtering when search/category change
   const filteredGigs = useMemo(() => {
     return gigs.filter((gig) => {
       const matchesSearch =
@@ -139,69 +54,108 @@ export default function MarketplacePage() {
   }, [gigs, search, selectedCategory]);
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 sm:py-24">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-[var(--gradient-hero)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.15),transparent_50%)]" />
-
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-            Find & Book
-            <span className="gradient-text"> Creative Talent</span>
-          </h1>
-          <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-8">
-            A marketplace where young creators monetize their skills and
-            clients book the services they need.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+    <div className="min-h-screen bg-[#F7F3EA] text-[#171717]">
+      {/* Editorial Hero Section */}
+      <section className="border-b border-[#D8CEBC] bg-[#FFFDF8] py-12 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
             {role === "creator" ? (
-              <Link
-                href="/gigs/new"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all hover:-translate-y-0.5"
-              >
-                Post Your Gig
-                <svg
-                  className="ml-2 w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </Link>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-6 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]" />
+                CREATOR MARKETPLACE · ISSUE NO. 01
+              </div>
             ) : (
-              !userName && (
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  Set your name in the header to start booking gigs
-                </p>
-              )
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-6 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]" />
+                CLIENT DISCOVERY · ISSUE NO. 01
+              </div>
             )}
+            <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#171717] leading-[1.08] mb-6 uppercase">
+              Good work,
+              <br />
+              looking for
+              <br />
+              the right person.
+            </h1>
+            <p className="text-base sm:text-lg text-[#57534E] leading-relaxed max-w-2xl mb-8">
+              {role === "creator"
+                ? "Turn your specialized talent into verified services. List what you offer, set your terms, and manage client bookings on the creator ledger."
+                : "A peer-to-peer creator marketplace where clients discover verified creative, technical, and educational services directly from emerging talent."}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {role === "creator" ? (
+                <>
+                  <Link
+                    href="/gigs/new"
+                    className="btn-olive px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2 shadow-xs"
+                  >
+                    <span>POST GIG</span>
+                    <span>→</span>
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="btn-outline px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  >
+                    <span>CREATOR DESK</span>
+                    <span>→</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="#marketplace-gigs"
+                    className="btn-signal px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2 shadow-xs"
+                  >
+                    <span>BROWSE GIGS</span>
+                    <span>↓</span>
+                  </a>
+                  <Link
+                    href="/bookings"
+                    className="btn-outline px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-wider inline-flex items-center gap-2"
+                  >
+                    <span>MY BOOKINGS</span>
+                    <span>→</span>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Marketplace Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Filters */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">
-              Browse Gigs
-            </h2>
-            {!isLoading && (
-              <span className="text-sm text-[var(--color-text-muted)]">
-                {filteredGigs.length} gig{filteredGigs.length !== 1 ? "s" : ""}{" "}
-                found
-              </span>
+      {/* Marketplace Catalog Section */}
+      <section id="marketplace-gigs" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+        {/* Filter Toolbar */}
+        <div className="mb-10 pb-6 border-b border-[#D8CEBC]">
+          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-6">
+            <div>
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#171717]">
+                LATEST GIGS
+              </h2>
+              <p className="font-mono text-xs text-[#847F75] mt-1">
+                {!isLoading && (
+                  <>
+                    <span className="font-semibold text-[#171717]">{filteredGigs.length}</span>{" "}
+                    gig{filteredGigs.length !== 1 ? "s" : ""} available ·{" "}
+                  </>
+                )}
+                <span className="text-[#57534E]">Sorted by Newest first</span>
+              </p>
+            </div>
+            {(search || selectedCategory) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("");
+                }}
+                className="font-mono text-xs uppercase tracking-wider text-[#FF5A36] hover:underline self-start sm:self-auto"
+              >
+                Reset Filters [✕]
+              </button>
             )}
           </div>
+
           <GigFilters
             search={search}
             onSearchChange={setSearch}
@@ -210,23 +164,27 @@ export default function MarketplacePage() {
           />
         </div>
 
-        {/* Loading State */}
+        {/* Loading State: Paper Skeletons */}
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="glass-card p-5 animate-pulse"
+                className="ledger-card p-6 bg-[#FFFDF8] border border-[#D8CEBC] animate-pulse space-y-4"
               >
-                <div className="flex justify-between mb-3">
-                  <div className="h-6 w-20 bg-[var(--color-bg-secondary)] rounded-full" />
-                  <div className="h-6 w-14 bg-[var(--color-bg-secondary)] rounded" />
+                <div className="flex justify-between items-center pb-2 border-b border-[#D8CEBC]/50">
+                  <div className="h-3 w-16 bg-[#EBE5D8] rounded-sm" />
+                  <div className="h-4 w-12 bg-[#EBE5D8] rounded-sm" />
                 </div>
-                <div className="h-5 w-3/4 bg-[var(--color-bg-secondary)] rounded mb-2" />
-                <div className="h-4 w-full bg-[var(--color-bg-secondary)] rounded mb-1" />
-                <div className="h-4 w-2/3 bg-[var(--color-bg-secondary)] rounded mb-4" />
-                <div className="pt-3 border-t border-[var(--color-border-light)]">
-                  <div className="h-7 w-24 bg-[var(--color-bg-secondary)] rounded" />
+                <div className="h-5 w-4/5 bg-[#EBE5D8] rounded-sm" />
+                <div className="space-y-2 py-2">
+                  <div className="h-3 w-full bg-[#EBE5D8] rounded-sm" />
+                  <div className="h-3 w-5/6 bg-[#EBE5D8] rounded-sm" />
+                  <div className="h-3 w-2/3 bg-[#EBE5D8] rounded-sm" />
+                </div>
+                <div className="pt-4 border-t border-[#D8CEBC]/70 flex justify-between">
+                  <div className="h-3 w-20 bg-[#EBE5D8] rounded-sm" />
+                  <div className="h-3 w-14 bg-[#EBE5D8] rounded-sm" />
                 </div>
               </div>
             ))}
@@ -235,50 +193,66 @@ export default function MarketplacePage() {
 
         {/* Error State */}
         {error && !isLoading && (
-          <div className="text-center py-12">
-            <p className="text-red-400 mb-2">{error}</p>
+          <div className="ledger-card-flat bg-[#FFFDF8] border border-[#DC2626]/30 p-8 text-center max-w-md mx-auto my-12">
+            <p className="font-serif text-xl font-bold text-[#991B1B] mb-2 uppercase tracking-tight">
+              WE COULDN&apos;T LOAD THE MARKETPLACE
+            </p>
+            <p className="text-sm text-[#57534E] mb-6">
+              Please try again.
+            </p>
             <button
+              type="button"
               onClick={() => window.location.reload()}
-              className="text-sm text-indigo-400 hover:text-indigo-300"
+              className="btn-outline px-5 py-2.5 text-xs font-mono uppercase tracking-wider font-bold rounded-sm"
             >
-              Try again
+              TRY AGAIN
             </button>
           </div>
         )}
 
         {/* Empty State */}
         {!isLoading && !error && filteredGigs.length === 0 && (
-          <div className="text-center py-16 animate-fade-in">
-            <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold mb-2">No gigs found</h3>
-            <p className="text-[var(--color-text-secondary)] mb-4">
+          <div className="ledger-card-flat bg-[#FFFDF8] border-2 border-[#171717] p-10 sm:p-14 text-center max-w-lg mx-auto my-10 animate-fade-in shadow-xs">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm font-mono text-xl text-[#171717] mb-4">
+              ✦
+            </div>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 tracking-tight uppercase">
+              {search || selectedCategory ? "NO MATCHING GIGS" : "NO GIGS YET."}
+            </h3>
+            <p className="text-sm sm:text-base text-[#57534E] mb-8 leading-relaxed max-w-md mx-auto">
               {search || selectedCategory
-                ? "Try adjusting your search or filters"
-                : "No gigs have been posted yet. Be the first!"}
+                ? "No gigs matched your search or category filter."
+                : "Be the first creator to put a skill on the marketplace."}
             </p>
-            {(search || selectedCategory) && (
+            {search || selectedCategory ? (
               <button
+                type="button"
                 onClick={() => {
                   setSearch("");
                   setSelectedCategory("");
                 }}
-                className="px-4 py-2 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-sm hover:border-[var(--color-primary)] transition-colors"
+                className="btn-ink px-6 py-2.5 text-xs font-mono uppercase tracking-wider rounded-sm font-bold"
               >
-                Clear Filters
+                RESET FILTERS
               </button>
+            ) : (
+              <Link
+                href="/gigs/new"
+                onClick={() => setRole("creator")}
+                className="btn-olive px-6 py-3 text-xs font-mono uppercase tracking-wider font-bold inline-flex items-center gap-2 rounded-sm shadow-xs"
+              >
+                <span>POST A GIG</span>
+                <span>→</span>
+              </Link>
             )}
           </div>
         )}
 
         {/* Gig Grid */}
         {!isLoading && !error && filteredGigs.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-            {filteredGigs.map((gig, index) => (
-              <div
-                key={gig._id}
-                style={{ animationDelay: `${index * 50}ms` }}
-                className="animate-slide-up"
-              >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+            {filteredGigs.map((gig) => (
+              <div key={gig._id}>
                 <GigCard gig={gig} />
               </div>
             ))}

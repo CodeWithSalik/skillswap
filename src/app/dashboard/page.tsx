@@ -4,46 +4,64 @@ import { useState, useEffect } from "react";
 import { Booking } from "@/lib/types";
 import { fetchBookings, updateBookingStatus } from "@/lib/api";
 import { useUser } from "@/context/UserContext";
-import { BOOKING_STATUS_CONFIG } from "@/lib/constants";
 import Link from "next/link";
 
+import RoleGuard from "@/components/auth/RoleGuard";
+
 export default function DashboardPage() {
-  const { role, userName } = useUser();
+  return (
+    <RoleGuard allowedRole="creator">
+      <DashboardContent />
+    </RoleGuard>
+  );
+}
+
+function DashboardContent() {
+  const { userName, setUserName } = useUser();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "Pending" | "Accepted" | "Declined">("all");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [inlineName, setInlineName] = useState("");
+
+  const activeUser = userName || inlineName.trim();
 
   useEffect(() => {
     async function loadBookings() {
-      if (!userName) return;
+      if (!activeUser) {
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
+      setActionError(null);
       try {
-        const data = await fetchBookings({ creatorName: userName });
+        const data = await fetchBookings({ creatorName: activeUser });
         setBookings(data);
       } catch {
-        console.warn("API not available");
+        console.warn("API not available or network error");
         setBookings([]);
       } finally {
         setIsLoading(false);
       }
     }
     loadBookings();
-  }, [userName]);
+  }, [activeUser]);
 
   const handleStatusUpdate = async (
     bookingId: string,
     status: "Accepted" | "Declined"
   ) => {
     setUpdatingId(bookingId);
+    setActionError(null);
     try {
       const updated = await updateBookingStatus(bookingId, { status });
       setBookings((prev) =>
         prev.map((b) => (b._id === bookingId ? updated : b))
       );
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "Failed to update booking status"
+      setActionError(
+        err instanceof Error ? err.message : "Failed to update booking status. Please try again."
       );
     } finally {
       setUpdatingId(null);
@@ -62,216 +80,277 @@ export default function DashboardPage() {
     declined: bookings.filter((b) => b.status === "Declined").length,
   };
 
-  // Role guard
-  if (role !== "creator") {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass-card p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">🔄</div>
-          <h2 className="text-xl font-bold mb-2">Switch to Creator Mode</h2>
-          <p className="text-[var(--color-text-secondary)]">
-            The dashboard is for creators. Use the toggle in the header to
-            switch to Creator mode.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Name guard
-  if (!userName) {
+  if (!activeUser) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
-        <div className="glass-card p-8 max-w-md w-full text-center">
-          <div className="text-5xl mb-4">✏️</div>
-          <h2 className="text-xl font-bold mb-2">Set Your Name First</h2>
-          <p className="text-[var(--color-text-secondary)]">
-            Click &ldquo;Set Name&rdquo; in the header to see your dashboard.
+      <div className="min-h-[50vh] flex items-center justify-center px-4 py-12">
+        <div className="ledger-card bg-[#FFFDF8] border border-[#D8CEBC] p-8 max-w-md w-full text-center">
+          <div className="font-mono text-xs uppercase tracking-widest text-[#847F75] mb-2">
+            CREATOR IDENTITY
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-[#171717] mb-3">
+            Set Your Creator Name
+          </h2>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
+            Enter your display name to view and manage booking requests sent to your services.
           </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inlineName}
+              onChange={(e) => setInlineName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && inlineName.trim()) {
+                  setUserName(inlineName.trim());
+                }
+              }}
+              placeholder="Your name"
+              className="text-sm"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (inlineName.trim()) setUserName(inlineName.trim());
+              }}
+              disabled={!inlineName.trim()}
+              className="btn-olive px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50"
+            >
+              Set Name
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-16 animate-fade-in">
+      {/* Editorial Header */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 mb-8 pb-6 border-b border-[#D8CEBC]">
         <div>
-          <h1 className="text-3xl font-bold mb-1">Creator Dashboard</h1>
-          <p className="text-[var(--color-text-secondary)]">
-            Manage your incoming bookings
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
+            CREATOR WORKSPACE · {activeUser}
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] tracking-tight mb-2 uppercase">
+            CREATOR DESK
+          </h1>
+          <p className="text-[#57534E] text-sm font-sans">
+            Manage incoming requests.
           </p>
         </div>
         <Link
           href="/gigs/new"
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all text-sm"
+          className="btn-olive px-5 py-2.5 text-xs font-mono uppercase tracking-wider self-start sm:self-auto inline-flex items-center gap-2 shadow-xs"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Post New Gig
+          <span>+ Post New Gig</span>
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      {/* Metrics Tally Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Total", value: stats.total, color: "text-[var(--color-text)]" },
-          { label: "Pending", value: stats.pending, color: "text-amber-400" },
-          { label: "Accepted", value: stats.accepted, color: "text-emerald-400" },
-          { label: "Declined", value: stats.declined, color: "text-red-400" },
+          { label: "Total", value: stats.total, color: "text-[#171717]", bg: "bg-[#FFFDF8]", border: "border-[#D8CEBC]" },
+          { label: "Pending", value: stats.pending, color: "text-[#92400E]", bg: "bg-[#FEF3C7]", border: "border-[#FDE68A]" },
+          { label: "Accepted", value: stats.accepted, color: "text-[#3D4733]", bg: "bg-[#EAEFE4]", border: "border-[#B5C2A8]" },
+          { label: "Declined", value: stats.declined, color: "text-[#991B1B]", bg: "bg-[#FEE2E2]", border: "border-[#FCA5A5]" },
         ].map((stat) => (
-          <div key={stat.label} className="glass-card p-4 text-center">
-            <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            <p className="text-xs text-[var(--color-text-muted)] mt-1">
+          <div
+            key={stat.label}
+            className={`p-4 border ${stat.border} ${stat.bg} rounded-sm text-left`}
+          >
+            <span className="font-mono text-[11px] uppercase tracking-widest text-[#57534E] block mb-1">
               {stat.label}
-            </p>
+            </span>
+            <span className={`font-mono text-3xl font-bold ${stat.color}`}>
+              {stat.value}
+            </span>
           </div>
         ))}
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-1 p-1 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] mb-6 overflow-x-auto">
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-1 mb-6 pb-2 border-b border-[#D8CEBC] overflow-x-auto">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-[#847F75] pr-2 flex-shrink-0">
+          STATUS:
+        </span>
         {(["all", "Pending", "Accepted", "Declined"] as const).map((f) => (
           <button
             key={f}
+            type="button"
             onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-sm transition-colors whitespace-nowrap ${
               filter === f
-                ? "bg-[var(--color-bg-elevated)] text-[var(--color-text)] shadow-sm"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                ? "bg-[#171717] text-[#FFFDF8] font-bold"
+                : "bg-[#FFFDF8] border border-[#D8CEBC] text-[#57534E] hover:border-[#171717]"
             }`}
           >
-            {f === "all" ? "All" : f}
-            {f !== "all" && (
-              <span className="ml-1.5 text-xs opacity-60">
-                {f === "Pending"
-                  ? stats.pending
-                  : f === "Accepted"
-                  ? stats.accepted
-                  : stats.declined}
-              </span>
-            )}
+            {f === "all" ? "All Requests" : f}
+            <span className="ml-1.5 opacity-60">
+              (
+              {f === "all"
+                ? stats.total
+                : f === "Pending"
+                ? stats.pending
+                : f === "Accepted"
+                ? stats.accepted
+                : stats.declined}
+              )
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Loading */}
+      {/* Inline Action Error (Never a browser alert!) */}
+      {actionError && (
+        <div className="mb-6 p-4 bg-[#FEE2E2] border border-[#FCA5A5] text-[#991B1B] text-xs font-mono rounded-sm flex items-start justify-between">
+          <div>
+            <p className="font-bold mb-0.5">Action Notice:</p>
+            <p>{actionError}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            className="text-sm font-bold text-[#991B1B] hover:opacity-75 ml-4"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Section Headline */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-serif text-xl font-bold text-[#171717] tracking-tight">
+          INCOMING REQUESTS
+        </h2>
+        <span className="font-mono text-xs text-[#847F75]">
+          {filteredBookings.length} record{filteredBookings.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+
+      {/* Loading Skeletons */}
       {isLoading && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="glass-card p-5 animate-pulse">
+            <div key={i} className="ledger-card p-6 bg-[#FFFDF8] border border-[#D8CEBC] animate-pulse space-y-3">
               <div className="flex justify-between">
-                <div className="h-5 w-48 bg-[var(--color-bg-secondary)] rounded" />
-                <div className="h-6 w-20 bg-[var(--color-bg-secondary)] rounded-full" />
+                <div className="h-4 w-48 bg-[#EBE5D8] rounded-sm" />
+                <div className="h-6 w-20 bg-[#EBE5D8] rounded-sm" />
               </div>
-              <div className="h-4 w-32 bg-[var(--color-bg-secondary)] rounded mt-3" />
+              <div className="h-3 w-36 bg-[#EBE5D8] rounded-sm" />
             </div>
           ))}
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty State */}
       {!isLoading && filteredBookings.length === 0 && (
-        <div className="text-center py-16 animate-fade-in">
-          <div className="text-5xl mb-4">📭</div>
-          <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
-          <p className="text-[var(--color-text-secondary)] mb-4">
+        <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
+          <div className="font-mono text-2xl text-[#847F75] mb-2">📭</div>
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching requests" : "NO INCOMING REQUESTS"}
+          </h3>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
-              ? `No ${filter.toLowerCase()} bookings found.`
-              : "When clients book your gigs, they'll appear here."}
+              ? `No requests currently marked as "${filter}".`
+              : "New client booking requests will appear here."}
           </p>
           <Link
             href="/gigs/new"
-            className="inline-flex px-4 py-2 rounded-lg text-sm font-medium text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+            className="btn-olive px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
-            Post a gig to get started →
+            Post a New Gig →
           </Link>
         </div>
       )}
 
-      {/* Booking list */}
+      {/* Booking List */}
       {!isLoading && filteredBookings.length > 0 && (
-        <div className="space-y-3 animate-fade-in">
+        <div className="space-y-4 animate-fade-in">
           {filteredBookings.map((booking) => {
-            const statusConfig = BOOKING_STATUS_CONFIG[booking.status];
+            const isPending = booking.status === "Pending";
+            const isAccepted = booking.status === "Accepted";
+            const isDeclined = booking.status === "Declined";
+
             return (
               <div
                 key={booking._id}
-                className="glass-card p-5 transition-all hover:border-[rgba(99,102,241,0.3)]"
+                className="ledger-card p-6 bg-[#FFFDF8] border border-[#D8CEBC] transition-all hover:border-[#171717]"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    {/* Gig title */}
-                    <h3 className="font-semibold truncate mb-1">
-                      {booking.gigTitle}
-                    </h3>
-                    {/* Client info */}
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--color-text-secondary)]">
-                      <span className="flex items-center gap-1.5">
-                        <span className="h-5 w-5 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white text-[10px] font-bold">
-                          {booking.clientName.charAt(0).toUpperCase()}
-                        </span>
-                        {booking.clientName}
+                    {/* Gig Title */}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#F7F3EA] border border-[#D8CEBC] text-[#57534E] rounded-sm font-semibold">
+                        GIG
                       </span>
-                      <span>{booking.clientEmail}</span>
-                      <span className="text-xs text-[var(--color-text-muted)]">
-                        {new Date(booking.createdAt).toLocaleDateString(
-                          "en-IN",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        )}
+                      <h3 className="font-serif text-lg font-bold text-[#171717] truncate">
+                        {booking.gigTitle}
+                      </h3>
+                    </div>
+
+                    {/* Client Information */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-[#57534E] mb-3">
+                      <span>
+                        Client: <strong className="text-[#171717]">{booking.clientName}</strong>
+                      </span>
+                      <span>·</span>
+                      <span className="text-[#171717] underline decoration-dotted">{booking.clientEmail}</span>
+                      <span>·</span>
+                      <span className="text-[#847F75]">
+                        {new Date(booking.createdAt).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </span>
                     </div>
-                    {/* Message */}
+
+                    {/* Client Message */}
                     {booking.message && (
-                      <p className="mt-2 text-sm text-[var(--color-text-muted)] italic">
+                      <div className="p-3 bg-[#F7F3EA] border border-[#D8CEBC]/70 rounded-sm font-sans text-sm text-[#171717] leading-relaxed">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-[#847F75] block mb-1">
+                          Client Note:
+                        </span>
                         &ldquo;{booking.message}&rdquo;
-                      </p>
+                      </div>
                     )}
                   </div>
 
-                  {/* Status + Actions */}
-                  <div className="flex items-center gap-2 sm:flex-shrink-0">
-                    {booking.status === "Pending" ? (
-                      <>
+                  {/* Status & Actions */}
+                  <div className="flex items-center gap-2 md:flex-col md:items-end flex-shrink-0 pt-2 md:pt-0">
+                    {isPending ? (
+                      <div className="flex items-center gap-2">
                         <button
                           id={`accept-booking-${booking._id}`}
-                          onClick={() =>
-                            handleStatusUpdate(booking._id, "Accepted")
-                          }
+                          type="button"
+                          onClick={() => handleStatusUpdate(booking._id, "Accepted")}
                           disabled={updatingId === booking._id}
-                          className="px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-medium hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-[#3D4733] text-white font-bold rounded-sm hover:bg-[#2F3727] transition-colors disabled:opacity-50"
                         >
-                          {updatingId === booking._id
-                            ? "..."
-                            : "Accept"}
+                          {updatingId === booking._id ? "Updating..." : "ACCEPT"}
                         </button>
                         <button
                           id={`decline-booking-${booking._id}`}
-                          onClick={() =>
-                            handleStatusUpdate(booking._id, "Declined")
-                          }
+                          type="button"
+                          onClick={() => handleStatusUpdate(booking._id, "Declined")}
                           disabled={updatingId === booking._id}
-                          className="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 text-sm font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#DC2626] text-[#DC2626] bg-[#FFFDF8] hover:bg-[#FEE2E2] font-bold rounded-sm transition-colors disabled:opacity-50"
                         >
-                          {updatingId === booking._id
-                            ? "..."
-                            : "Decline"}
+                          {updatingId === booking._id ? "Updating..." : "DECLINE"}
                         </button>
-                      </>
-                    ) : (
-                      <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-semibold ${statusConfig.color} ${statusConfig.bgColor}`}
-                      >
-                        {statusConfig.label}
+                      </div>
+                    ) : isAccepted ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 font-mono text-xs uppercase tracking-wider font-bold rounded-sm bg-[#EAEFE4] text-[#3D4733] border border-[#B5C2A8]">
+                        <span>✓</span> ACCEPTED
                       </span>
-                    )}
+                    ) : isDeclined ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 font-mono text-xs uppercase tracking-wider font-bold rounded-sm bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]">
+                        <span>✕</span> DECLINED
+                      </span>
+                    ) : null}
                   </div>
                 </div>
               </div>

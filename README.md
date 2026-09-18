@@ -66,6 +66,5 @@ Enter any display name to get started.
 
 ## Live URL
 
-**Deployment Status:** Pending deployment.
-Once deployed to Vercel, replace this placeholder with your public URL:
-`https://<project-name>.vercel.app`
+**Public Deployed Application:**
+[https://skillswap-five-tan.vercel.app](https://skillswap-five-tan.vercel.app)

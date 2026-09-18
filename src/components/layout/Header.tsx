@@ -3,12 +3,27 @@
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { getNavigationItems, canAccessRoute } from "@/lib/rbac";
+import { UserRole } from "@/lib/types";
 
 export default function Header() {
   const { role, setRole, userName, setUserName } = useUser();
   const [showNameInput, setShowNameInput] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const handleRoleSwitch = (newRole: UserRole) => {
+    if (newRole === role) return;
+    setRole(newRole);
+    if (!canAccessRoute(newRole, pathname)) {
+      router.push("/");
+    }
+  };
+
+  const navItems = getNavigationItems(role);
 
   const handleSetName = () => {
     if (nameInput.trim()) {
@@ -17,100 +32,121 @@ export default function Header() {
     }
   };
 
+  const isActive = (path: string) => pathname === path;
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[#D8CEBC] bg-[#F7F3EA]/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 text-white font-bold text-lg transition-transform group-hover:scale-110">
-              S
-            </div>
-            <span className="text-xl font-bold gradient-text hidden sm:inline">
-              SkillSwap
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-            >
-              Marketplace
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Brand Wordmark */}
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="h-8 w-8 bg-[#171717] text-[#FFFDF8] flex items-center justify-center font-serif text-lg font-bold transition-transform group-hover:scale-105">
+                S
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif text-xl tracking-tight font-bold text-[#171717] leading-none">
+                  SKILLSWAP
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-[#847F75] leading-tight mt-0.5">
+                  CREATOR LEDGER
+                </span>
+              </div>
             </Link>
-            {role === "creator" && (
-              <>
-                <Link
-                  href="/gigs/new"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  Post a Gig
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-                >
-                  Dashboard
-                </Link>
-              </>
-            )}
-            {role === "client" && (
-              <Link
-                href="/bookings"
-                className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)] transition-colors"
-              >
-                My Bookings
-              </Link>
-            )}
-          </nav>
 
-          {/* Right side: Role Switcher + User Name */}
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1 border-l border-[#D8CEBC] pl-6 h-7">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-colors ${
+                    isActive(item.href)
+                      ? role === "creator"
+                        ? "text-[#3D4733] font-bold"
+                        : "text-[#FF5A36] font-bold"
+                      : "text-[#171717]/70 hover:text-[#171717]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Right side: Role indicator badge, Role Switcher + Display Name */}
           <div className="flex items-center gap-3">
+            {/* Mode Indicator Badge */}
+            <div className="hidden lg:flex items-center">
+              {role === "client" ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest bg-[#FF5A36]/10 text-[#FF5A36] border border-[#FF5A36]/30 rounded-sm font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36] animate-pulse" />
+                  CLIENT MODE
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest bg-[#59634A]/15 text-[#3D4733] border border-[#59634A]/40 rounded-sm font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#59634A] animate-pulse" />
+                  CREATOR MODE
+                </span>
+              )}
+            </div>
+
             {/* Role Switcher */}
-            <div className="flex items-center rounded-lg bg-[var(--color-bg-secondary)] p-0.5 border border-[var(--color-border)]">
+            <div className="flex items-center bg-[#EFE9DC] p-1 border border-[#D8CEBC] rounded-sm gap-1">
+              <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-[#847F75] px-1.5 font-bold">
+                YOU ARE:
+              </span>
               <button
                 id="role-client-btn"
-                onClick={() => setRole("client")}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                type="button"
+                onClick={() => handleRoleSwitch("client")}
+                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm font-bold ${
                   role === "client"
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md"
-                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[#FF5A36] text-white shadow-xs"
+                    : "text-[#171717]/60 hover:text-[#171717]"
                 }`}
               >
                 Client
               </button>
               <button
                 id="role-creator-btn"
-                onClick={() => setRole("creator")}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                type="button"
+                onClick={() => handleRoleSwitch("creator")}
+                className={`px-3 py-1 text-xs font-mono uppercase tracking-wider transition-all rounded-sm font-bold ${
                   role === "creator"
-                    ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
-                    : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                    ? "bg-[#3D4733] text-[#FFFDF8] shadow-xs"
+                    : "text-[#171717]/60 hover:text-[#171717]"
                 }`}
               >
                 Creator
               </button>
             </div>
 
-            {/* User Name */}
+            {/* User Name Badge */}
             {userName ? (
               <button
+                type="button"
                 onClick={() => {
                   setNameInput(userName);
                   setShowNameInput(true);
                 }}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-primary)] transition-colors"
+                title="Click to change display name"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1 text-xs font-mono border border-[#D8CEBC] bg-[#FFFDF8] text-[#171717] hover:border-[#171717] transition-colors rounded-sm"
               >
-                <span className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
-                  {userName.charAt(0).toUpperCase()}
+                <span className="text-[#847F75]">Name:</span>
+                <span className="font-semibold text-[#171717] underline decoration-dotted decoration-[#D8CEBC] underline-offset-2">
+                  {userName}
                 </span>
-                {userName}
               </button>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowNameInput(true)}
-                className="hidden sm:flex px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-indigo-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-indigo-500/25 transition-all"
+                className={`hidden sm:flex items-center px-3 py-1 text-xs font-mono uppercase tracking-wider border transition-colors rounded-sm ${
+                  role === "creator"
+                    ? "border-[#3D4733] text-[#3D4733] bg-[#EAEFE4] hover:bg-[#3D4733] hover:text-white"
+                    : "border-[#FF5A36] text-[#FF5A36] bg-[#FFF2EE] hover:bg-[#FF5A36] hover:text-white"
+                }`}
               >
                 Set Name
               </button>
@@ -118,11 +154,12 @@ export default function Header() {
 
             {/* Mobile menu button */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)]"
+              className="md:hidden p-2 text-[#171717] hover:bg-[#EFE9DC] border border-[#D8CEBC] rounded-sm"
               aria-label="Toggle navigation menu"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -133,92 +170,109 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-3 border-t border-[var(--color-border)] animate-fade-in">
-            <div className="flex flex-col gap-1">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
-              >
-                Marketplace
-              </Link>
-              {role === "creator" && (
-                <>
-                  <Link
-                    href="/gigs/new"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
-                  >
-                    Post a Gig
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
-                  >
-                    Dashboard
-                  </Link>
-                </>
+          <nav className="md:hidden py-4 border-t border-[#D8CEBC] bg-[#F7F3EA] animate-fade-in">
+            {/* Mobile Mode Tag */}
+            <div className="px-3 pb-3 mb-2 border-b border-[#D8CEBC]/70 flex items-center justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-[#847F75]">Active Mode:</span>
+              {role === "client" ? (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono uppercase tracking-widest bg-[#FF5A36]/10 text-[#FF5A36] border border-[#FF5A36]/30 rounded-sm font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]" />
+                  CLIENT MODE
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-mono uppercase tracking-widest bg-[#59634A]/15 text-[#3D4733] border border-[#59634A]/40 rounded-sm font-bold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]" />
+                  CREATOR MODE
+                </span>
               )}
-              {role === "client" && (
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {navItems.map((item) => (
                 <Link
-                  href="/bookings"
+                  key={item.href}
+                  href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-secondary)]"
+                  className={`px-3 py-2 text-sm font-mono uppercase tracking-wider ${
+                    isActive(item.href)
+                      ? role === "creator"
+                        ? "bg-[#EAEFE4] text-[#3D4733] font-bold"
+                        : "bg-[#FFF2EE] text-[#FF5A36] font-bold"
+                      : "text-[#171717]"
+                  }`}
                 >
-                  My Bookings
+                  {item.label}
                 </Link>
-              )}
-              {!userName && (
+              ))}
+              <div className="pt-2 border-t border-[#D8CEBC] px-3">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowNameInput(true);
                     setMobileMenuOpen(false);
                   }}
-                  className="px-3 py-2 rounded-lg text-sm font-medium text-left text-indigo-400 hover:bg-[var(--color-bg-secondary)]"
+                  className={`text-xs font-mono uppercase underline ${
+                    role === "creator" ? "text-[#3D4733]" : "text-[#FF5A36]"
+                  }`}
                 >
-                  Set Your Name
+                  {userName ? `Display Name: ${userName} (Edit)` : "Set Display Name"}
                 </button>
-              )}
+              </div>
             </div>
           </nav>
         )}
       </div>
 
-      {/* Name Input Modal */}
+      {/* Demo Identity Name Modal */}
       {showNameInput && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card p-6 w-full max-w-sm mx-4 animate-slide-up">
-            <h3 className="text-lg font-semibold mb-1">
-              {userName ? "Update Your Name" : "Welcome to SkillSwap!"}
-            </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-4">
-              Enter a display name to get started. No account needed.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#171717]/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="ledger-card-flat bg-[#FFFDF8] p-6 w-full max-w-sm border-2 border-[#171717] shadow-xl animate-slide-up">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#D8CEBC]">
+              <h3 className="font-mono text-xs uppercase tracking-widest text-[#171717] font-bold">
+                DEMO IDENTITY
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowNameInput(false)}
+                className="text-[#847F75] hover:text-[#171717] text-sm"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-sm text-[#57534E] mb-4 leading-relaxed">
+              Enter a display name to test booking or posting gigs. No password or account is required.
             </p>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSetName()}
-              placeholder="Your name (e.g., Alex)"
-              className="mb-4"
-              autoFocus
-            />
+            <div className="mb-4">
+              <label htmlFor="modal-name-input" className="block text-xs font-mono uppercase tracking-wider text-[#171717] mb-1.5">
+                Display Name
+              </label>
+              <input
+                id="modal-name-input"
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSetName()}
+                placeholder="e.g., Salik or Alex"
+                className="w-full text-sm"
+                autoFocus
+              />
+            </div>
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setShowNameInput(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)]"
+                className="flex-1 py-2 text-xs font-mono uppercase tracking-wider border border-[#D8CEBC] hover:bg-[#EFE9DC] text-[#171717] transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleSetName}
                 disabled={!nameInput.trim()}
-                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 text-white text-sm font-semibold hover:shadow-lg hover:shadow-indigo-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-2 text-xs font-mono uppercase tracking-wider bg-[#FF5A36] text-white font-semibold hover:bg-[#E64B29] disabled:opacity-50 transition-colors"
               >
-                Continue
+                Save
               </button>
             </div>
           </div>
