@@ -47,6 +47,33 @@ export default function MyBookingsPage() {
     declined: bookings.filter((b) => b.status === "Declined").length,
   };
 
+  // Access state: Client mode required
+  if (role !== "client") {
+    return (
+      <div className="min-h-[55vh] flex items-center justify-center px-4 py-12">
+        <div className="ledger-card bg-[#FFFDF8] border-2 border-[#171717] p-8 sm:p-10 max-w-md w-full text-center animate-fade-in shadow-xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-4 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
+            CLIENT MODE REQUIRED
+          </div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 uppercase tracking-tight">
+            Client Mode Required
+          </h2>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
+            This page is part of the Client workspace. Switch to Client Mode to continue.
+          </p>
+          <button
+            type="button"
+            onClick={() => setRole("client")}
+            className="btn-signal w-full py-3 text-xs font-mono uppercase tracking-wider font-bold rounded-sm inline-flex items-center justify-center gap-2 shadow-xs"
+          >
+            <span>SWITCH TO CLIENT MODE →</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Name guard
   if (!activeUser) {
     return (
@@ -114,22 +141,6 @@ export default function MyBookingsPage() {
           <span>Browse More Gigs →</span>
         </Link>
       </div>
-
-      {/* Role Reminder if current role is creator */}
-      {role === "creator" && (
-        <div className="mb-8 p-4 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <p className="font-mono text-xs text-[#57534E]">
-            Note: You are currently toggled to <strong>Creator mode</strong> in the header. These are your requests made as a <strong>Client</strong>.
-          </p>
-          <button
-            type="button"
-            onClick={() => setRole("client")}
-            className="text-xs font-mono uppercase text-[#FF5A36] underline hover:text-[#E64B29] whitespace-nowrap"
-          >
-            Switch to Client Mode
-          </button>
-        </div>
-      )}
 
       {/* Stats Tally Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -204,19 +215,19 @@ export default function MyBookingsPage() {
       {!isLoading && filteredBookings.length === 0 && (
         <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
           <div className="font-mono text-2xl text-[#847F75] mb-2">📋</div>
-          <h3 className="font-serif text-lg font-bold text-[#171717] mb-1">
-            No bookings found.
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching bookings" : "NO BOOKINGS YET"}
           </h3>
           <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
               ? `You have no bookings marked as "${filter}".`
-              : "When you book a gig from the marketplace, your requests and their progress will appear here."}
+              : "Browse the marketplace to find a creator and book a gig."}
           </p>
           <Link
             href="/"
-            className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block"
+            className="btn-signal px-6 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
-            Browse Marketplace Gigs →
+            BROWSE GIGS →
           </Link>
         </div>
       )}

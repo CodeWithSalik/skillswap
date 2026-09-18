@@ -82,10 +82,10 @@ export default function Header() {
                   <Link
                     href="/bookings"
                     onClick={() => setRole("client")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/40 hover:text-[#FF5A36]`}
+                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#FF5A36]`}
                     title="Switch to client bookings"
                   >
-                    My Bookings
+                    My Bookings (Client)
                   </Link>
                 </>
               ) : (
@@ -104,18 +104,18 @@ export default function Header() {
                   <Link
                     href="/gigs/new"
                     onClick={() => setRole("creator")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/40 hover:text-[#3D4733]`}
+                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#3D4733]`}
                     title="Switch to creator mode and post a gig"
                   >
-                    Post a Gig
+                    Post a Gig (Creator)
                   </Link>
                   <Link
                     href="/dashboard"
                     onClick={() => setRole("creator")}
-                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/40 hover:text-[#3D4733]`}
+                    className={`px-2 py-1 text-[11px] font-mono uppercase tracking-wider transition-colors text-[#171717]/50 hover:text-[#3D4733]`}
                     title="Switch to creator desk"
                   >
-                    Creator Desk
+                    Creator Desk (Creator)
                   </Link>
                 </>
               )}

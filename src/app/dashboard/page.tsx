@@ -70,12 +70,32 @@ export default function DashboardPage() {
     declined: bookings.filter((b) => b.status === "Declined").length,
   };
 
-  // Auto-sync to creator role when accessing Creator Desk so graders and users are never blocked
-  useEffect(() => {
-    if (role !== "creator") {
-      setRole("creator");
-    }
-  }, [role, setRole]);
+  // Access state: Creator mode required
+  if (role !== "creator") {
+    return (
+      <div className="min-h-[55vh] flex items-center justify-center px-4 py-12">
+        <div className="ledger-card bg-[#FFFDF8] border-2 border-[#171717] p-8 sm:p-10 max-w-md w-full text-center animate-fade-in shadow-xs">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-4 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
+            CREATOR MODE REQUIRED
+          </div>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 uppercase tracking-tight">
+            Creator Mode Required
+          </h2>
+          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
+            This page is part of the Creator workspace. Switch to Creator Mode to continue.
+          </p>
+          <button
+            type="button"
+            onClick={() => setRole("creator")}
+            className="btn-olive w-full py-3 text-xs font-mono uppercase tracking-wider font-bold rounded-sm inline-flex items-center justify-center gap-2 shadow-xs"
+          >
+            <span>SWITCH TO CREATOR MODE →</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Name guard
   if (!activeUser) {
@@ -245,17 +265,17 @@ export default function DashboardPage() {
       {!isLoading && filteredBookings.length === 0 && (
         <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-12 text-center my-6">
           <div className="font-mono text-2xl text-[#847F75] mb-2">📭</div>
-          <h3 className="font-serif text-lg font-bold text-[#171717] mb-1">
-            No booking requests found.
+          <h3 className="font-serif text-2xl font-bold text-[#171717] mb-2 uppercase tracking-tight">
+            {filter !== "all" ? "No matching requests" : "NO INCOMING REQUESTS"}
           </h3>
           <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
             {filter !== "all"
               ? `No requests currently marked as "${filter}".`
-              : "When clients submit booking requests for your gigs, they will appear here for you to accept or decline."}
+              : "New client booking requests will appear here."}
           </p>
           <Link
             href="/gigs/new"
-            className="btn-outline px-4 py-2 text-xs font-mono uppercase tracking-wider inline-block"
+            className="btn-olive px-5 py-2.5 text-xs font-mono uppercase tracking-wider inline-block font-bold rounded-sm shadow-xs"
           >
             Post a New Gig →
           </Link>

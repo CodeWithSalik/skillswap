@@ -194,18 +194,18 @@ export default function MarketplacePage() {
         {/* Error State */}
         {error && !isLoading && (
           <div className="ledger-card-flat bg-[#FFFDF8] border border-[#DC2626]/30 p-8 text-center max-w-md mx-auto my-12">
-            <p className="font-serif text-lg font-bold text-[#991B1B] mb-2">
-              Couldn&apos;t load these gigs.
+            <p className="font-serif text-xl font-bold text-[#991B1B] mb-2 uppercase tracking-tight">
+              WE COULDN&apos;T LOAD THE MARKETPLACE
             </p>
-            <p className="text-sm text-[#57534E] mb-4">
-              Please check your connection or server status and try again.
+            <p className="text-sm text-[#57534E] mb-6">
+              Please try again.
             </p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="btn-outline px-4 py-2 text-xs font-mono uppercase tracking-wider"
+              className="btn-outline px-5 py-2.5 text-xs font-mono uppercase tracking-wider font-bold rounded-sm"
             >
-              Try again
+              TRY AGAIN
             </button>
           </div>
         )}
@@ -217,11 +217,11 @@ export default function MarketplacePage() {
               ✦
             </div>
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 tracking-tight uppercase">
-              {search || selectedCategory ? "No matching gigs" : "NO GIGS YET."}
+              {search || selectedCategory ? "NO MATCHING GIGS" : "NO GIGS YET."}
             </h3>
             <p className="text-sm sm:text-base text-[#57534E] mb-8 leading-relaxed max-w-md mx-auto">
               {search || selectedCategory
-                ? "No services matched your filter criteria. Try a different search keyword or reset your filters."
+                ? "No gigs matched your search or category filter."
                 : "Be the first creator to put a skill on the marketplace."}
             </p>
             {search || selectedCategory ? (
@@ -233,7 +233,7 @@ export default function MarketplacePage() {
                 }}
                 className="btn-ink px-6 py-2.5 text-xs font-mono uppercase tracking-wider rounded-sm font-bold"
               >
-                Reset Filters [✕]
+                RESET FILTERS
               </button>
             ) : (
               <Link
