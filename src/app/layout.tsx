@@ -53,7 +53,10 @@ export default function RootLayout({
       lang="en"
       className={`${dmSerif.variable} ${ibmPlexSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#F7F3EA] text-[#171717] selection:bg-[#FF5A36] selection:text-white">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-[#F7F3EA] text-[#171717] selection:bg-[#FF5A36] selection:text-white"
+      >
         <UserProvider>
           <Header />
           <main className="flex-1">{children}</main>
