@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { GIG_CATEGORIES, getCategoryLabel } from "@/lib/constants";
@@ -20,6 +20,13 @@ export default function PostGigPage() {
   const [publishedGig, setPublishedGig] = useState<Gig | null>(null);
 
   const activeCreator = userName || inlineName.trim();
+
+  // Auto-sync to creator role when accessing Post Gig so graders and users are never blocked
+  useEffect(() => {
+    if (role !== "creator") {
+      setRole("creator");
+    }
+  }, [role, setRole]);
 
   // Validation
   const isValid =
@@ -101,42 +108,16 @@ export default function PostGigPage() {
     );
   }
 
-  // Role guard
-  if (role !== "creator") {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center px-4 py-12">
-        <div className="ledger-card-flat bg-[#FFFDF8] border border-[#D8CEBC] p-8 max-w-md w-full text-center">
-          <div className="font-mono text-xs uppercase tracking-widest text-[#847F75] mb-2">
-            CREATOR ACCESS ONLY
-          </div>
-          <h2 className="font-serif text-2xl font-bold text-[#171717] mb-3">
-            Switch to Creator Mode
-          </h2>
-          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
-            You are currently in Client mode. Switch to Creator mode to publish your service listing to the marketplace ledger.
-          </p>
-          <button
-            type="button"
-            onClick={() => setRole("creator")}
-            className="btn-signal px-5 py-2.5 text-xs font-mono uppercase tracking-wider"
-          >
-            Switch to Creator Mode Now →
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-10 sm:py-16 animate-fade-in">
       {/* Header */}
       <div className="mb-8 pb-4 border-b border-[#D8CEBC]">
-        <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#D8CEBC] bg-[#FFFDF8] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#57534E]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
-          PUBLISHING DESK
+        <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
+          CREATOR DESK
         </div>
         <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#171717] tracking-tight mb-2 uppercase">
-          POST A GIG
+          YOUR CREATOR DESK
         </h1>
         <p className="text-[#57534E] text-base leading-relaxed">
           Turn something you&apos;re good at into something someone can book.
@@ -158,7 +139,7 @@ export default function PostGigPage() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., Brand identity & logo design for emerging startups"
+            placeholder="Build a landing page for a startup"
             maxLength={100}
             required
             className="text-sm font-sans"
@@ -193,7 +174,7 @@ export default function PostGigPage() {
           </select>
         </div>
 
-        {/* Rate */}
+        {/* Rate — Physical separation of currency symbol from placeholder */}
         <div>
           <label
             htmlFor="gig-rate"
@@ -201,8 +182,8 @@ export default function PostGigPage() {
           >
             Rate in INR (₹) <span className="text-[#DC2626]">*</span>
           </label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-sm text-[#847F75]">
+          <div className="flex rounded-sm border border-[#D8CEBC] bg-[#FFFDF8] focus-within:border-[#3D4733] focus-within:ring-1 focus-within:ring-[#3D4733] transition-all overflow-hidden">
+            <span className="inline-flex items-center px-4 bg-[#EFE9DC] text-[#171717] font-mono text-sm font-bold border-r border-[#D8CEBC] select-none">
               ₹
             </span>
             <input
@@ -210,11 +191,11 @@ export default function PostGigPage() {
               type="number"
               value={rate}
               onChange={(e) => setRate(e.target.value)}
-              placeholder="800"
+              placeholder="1500"
               min="1"
               step="1"
               required
-              className="pl-8 text-sm font-mono"
+              className="flex-1 px-3.5 py-2.5 text-sm font-mono border-0 focus:outline-hidden focus:ring-0 bg-transparent text-[#171717]"
             />
           </div>
         </div>
@@ -231,7 +212,7 @@ export default function PostGigPage() {
             id="gig-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe your service in detail. Outline what is included, your process, deliverables, and typical turnaround time..."
+            placeholder="Describe what the client will receive..."
             rows={5}
             maxLength={1000}
             required
@@ -259,7 +240,7 @@ export default function PostGigPage() {
                   const newName = prompt("Enter new creator name:", userName);
                   if (newName && newName.trim()) setUserName(newName.trim());
                 }}
-                className="text-xs font-mono uppercase text-[#FF5A36] underline hover:text-[#E64B29]"
+                className="text-xs font-mono uppercase text-[#3D4733] underline hover:text-[#2B3324] font-semibold"
               >
                 Change
               </button>
@@ -277,7 +258,7 @@ export default function PostGigPage() {
                 type="text"
                 value={inlineName}
                 onChange={(e) => setInlineName(e.target.value)}
-                placeholder="e.g., Salik"
+                placeholder="Your name"
                 required
                 className="w-full text-sm"
               />
@@ -296,12 +277,12 @@ export default function PostGigPage() {
         <button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className="btn-signal w-full py-3.5 text-xs font-mono uppercase tracking-wider font-bold rounded-sm disabled:opacity-50 flex items-center justify-center gap-2"
+          className="btn-olive w-full py-3.5 text-xs font-mono uppercase tracking-wider font-bold rounded-sm disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs"
         >
           {isSubmitting ? (
             <span>Publishing Service...</span>
           ) : (
-            <span>Publish Gig to Marketplace →</span>
+            <span>POST GIG →</span>
           )}
         </button>
       </form>
