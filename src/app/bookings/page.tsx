@@ -71,7 +71,7 @@ export default function MyBookingsPage() {
                   setUserName(inlineName.trim());
                 }
               }}
-              placeholder="e.g., Alex"
+              placeholder="Your name"
               className="text-sm"
               autoFocus
             />
@@ -81,7 +81,7 @@ export default function MyBookingsPage() {
                 if (inlineName.trim()) setUserName(inlineName.trim());
               }}
               disabled={!inlineName.trim()}
-              className="btn-signal px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50"
+              className="btn-signal px-4 text-xs font-mono uppercase tracking-wider whitespace-nowrap disabled:opacity-50 font-semibold"
             >
               Set Name
             </button>
@@ -96,7 +96,7 @@ export default function MyBookingsPage() {
       {/* Editorial Header */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 mb-8 pb-6 border-b border-[#D8CEBC]">
         <div>
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#D8CEBC] bg-[#FFFDF8] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#57534E]">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 mb-3 border border-[#FF5A36]/30 bg-[#FFF2EE] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#FF5A36] font-semibold">
             <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]"></span>
             CLIENT LEDGER · {activeUser}
           </div>
@@ -104,7 +104,7 @@ export default function MyBookingsPage() {
             MY BOOKINGS
           </h1>
           <p className="text-[#57534E] text-sm font-sans">
-            Track the real-time status of your gig booking requests.
+            Track requests you&apos;ve sent.
           </p>
         </div>
         <Link
