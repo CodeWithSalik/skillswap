@@ -7,8 +7,18 @@ import { GIG_CATEGORIES, getCategoryLabel } from "@/lib/constants";
 import { createGig } from "@/lib/api";
 import { GigCategory, Gig } from "@/lib/types";
 
+import RoleGuard from "@/components/auth/RoleGuard";
+
 export default function PostGigPage() {
-  const { role, setRole, userName, setUserName } = useUser();
+  return (
+    <RoleGuard allowedRole="creator">
+      <PostGigContent />
+    </RoleGuard>
+  );
+}
+
+function PostGigContent() {
+  const { userName, setUserName } = useUser();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<GigCategory | "">("");
@@ -57,33 +67,6 @@ export default function PostGigPage() {
       setIsSubmitting(false);
     }
   };
-
-  // Access state: Creator mode required
-  if (role !== "creator") {
-    return (
-      <div className="min-h-[55vh] flex items-center justify-center px-4 py-12">
-        <div className="ledger-card bg-[#FFFDF8] border-2 border-[#171717] p-8 sm:p-10 max-w-md w-full text-center animate-fade-in shadow-xs">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 mb-4 border border-[#59634A]/40 bg-[#EAEFE4] rounded-sm font-mono text-[10px] uppercase tracking-widest text-[#3D4733] font-semibold">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#59634A]"></span>
-            CREATOR MODE REQUIRED
-          </div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#171717] mb-3 uppercase tracking-tight">
-            Creator Mode Required
-          </h2>
-          <p className="text-sm text-[#57534E] mb-6 leading-relaxed">
-            This page is part of the Creator workspace. Switch to Creator Mode to continue.
-          </p>
-          <button
-            type="button"
-            onClick={() => setRole("creator")}
-            className="btn-olive w-full py-3 text-xs font-mono uppercase tracking-wider font-bold rounded-sm inline-flex items-center justify-center gap-2 shadow-xs"
-          >
-            <span>SWITCH TO CREATOR MODE →</span>
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Success state matching exact prompt requirements
   if (publishedGig) {

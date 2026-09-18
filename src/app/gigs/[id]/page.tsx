@@ -5,6 +5,7 @@ import { Gig } from "@/lib/types";
 import { fetchGig, createBooking } from "@/lib/api";
 import { getCategoryLabel, getCategoryIcon } from "@/lib/constants";
 import { useUser } from "@/context/UserContext";
+import { canBookGig } from "@/lib/rbac";
 import Link from "next/link";
 
 export default function GigDetailPage({
@@ -13,7 +14,7 @@ export default function GigDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { userName, setUserName } = useUser();
+  const { role, userName, setUserName } = useUser();
 
   const [gig, setGig] = useState<Gig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -227,7 +228,21 @@ export default function GigDetailPage({
         </div>
 
         {/* Primary CTA / Booking Form */}
-        {!showBookingForm ? (
+        {!canBookGig(role) ? (
+          <div className="pt-6 border-t border-[#D8CEBC]">
+            <div className="p-4 bg-[#F7F3EA] border border-[#D8CEBC] rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#59634A]"></span>
+                <span className="font-mono text-xs uppercase tracking-widest text-[#3D4733] font-bold">
+                  CREATOR MODE
+                </span>
+              </div>
+              <p className="font-mono text-xs text-[#57534E]">
+                Booking services is available in Client Mode.
+              </p>
+            </div>
+          </div>
+        ) : !showBookingForm ? (
           <div className="pt-6 border-t border-[#D8CEBC]">
             <button
               id="book-gig-btn"
