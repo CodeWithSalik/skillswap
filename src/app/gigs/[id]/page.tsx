@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
 import { Gig } from "@/lib/types";
 import { fetchGig, createBooking } from "@/lib/api";
 import { getCategoryLabel, getCategoryIcon } from "@/lib/constants";
@@ -98,8 +97,7 @@ export default function GigDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
-  const { role, userName } = useUser();
+  const { userName } = useUser();
 
   const [gig, setGig] = useState<Gig | null>(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -3,8 +3,7 @@
 import {
   createContext,
   useContext,
-  useState,
-  useEffect,
+  useSyncExternalStore,
   ReactNode,
 } from "react";
 import { UserRole } from "@/lib/types";
@@ -27,40 +26,51 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 const STORAGE_KEY_ROLE = "skillswap_role";
 const STORAGE_KEY_NAME = "skillswap_username";
 
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("skillswap_user_change", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("skillswap_user_change", callback);
+  };
+}
+
+function getRoleSnapshot(): UserRole {
+  if (typeof window === "undefined") return "client";
+  const saved = localStorage.getItem(STORAGE_KEY_ROLE) as UserRole;
+  return saved === "creator" || saved === "client" ? saved : "client";
+}
+
+function getRoleServerSnapshot(): UserRole {
+  return "client";
+}
+
+function getUserNameSnapshot(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(STORAGE_KEY_NAME) || "";
+}
+
+function getUserNameServerSnapshot(): string {
+  return "";
+}
+
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<UserRole>("client");
-  const [userName, setUserNameState] = useState<string>("");
-  const [isReady, setIsReady] = useState(false);
+  const role = useSyncExternalStore(subscribe, getRoleSnapshot, getRoleServerSnapshot);
+  const userName = useSyncExternalStore(subscribe, getUserNameSnapshot, getUserNameServerSnapshot);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedRole = localStorage.getItem(STORAGE_KEY_ROLE) as UserRole;
-    const savedName = localStorage.getItem(STORAGE_KEY_NAME);
-
-    if (savedRole === "creator" || savedRole === "client") {
-      setRoleState(savedRole);
-    }
-    if (savedName) {
-      setUserNameState(savedName);
-    }
-    setIsReady(true);
-  }, []);
-
-  // Persist role to localStorage
   const setRole = (newRole: UserRole) => {
-    setRoleState(newRole);
     localStorage.setItem(STORAGE_KEY_ROLE, newRole);
+    window.dispatchEvent(new Event("skillswap_user_change"));
   };
 
-  // Persist name to localStorage
   const setUserName = (name: string) => {
-    setUserNameState(name);
     localStorage.setItem(STORAGE_KEY_NAME, name);
+    window.dispatchEvent(new Event("skillswap_user_change"));
   };
 
   return (
     <UserContext.Provider
-      value={{ role, setRole, userName, setUserName, isReady }}
+      value={{ role, setRole, userName, setUserName, isReady: true }}
     >
       {children}
     </UserContext.Provider>
