@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
 import { Gig } from "@/lib/types";
 import { fetchGig, createBooking } from "@/lib/api";
 import { getCategoryLabel, getCategoryIcon } from "@/lib/constants";
@@ -98,8 +97,7 @@ export default function GigDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
-  const { role, userName } = useUser();
+  const { userName, setUserName } = useUser();
 
   const [gig, setGig] = useState<Gig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,6 +105,7 @@ export default function GigDetailPage({
 
   // Booking form state
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isBooking, setIsBooking] = useState(false);
@@ -136,7 +135,17 @@ export default function GigDetailPage({
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!gig || !userName || !clientEmail.trim()) return;
+    const activeClientName = userName || clientName.trim();
+    if (!gig || !activeClientName || !clientEmail.trim()) {
+      if (!activeClientName) {
+        setBookingError("Please enter your name.");
+      }
+      return;
+    }
+
+    if (!userName && clientName.trim()) {
+      setUserName(clientName.trim());
+    }
 
     setIsBooking(true);
     setBookingError(null);
@@ -144,7 +153,7 @@ export default function GigDetailPage({
     try {
       await createBooking({
         gigId: gig._id,
-        clientName: userName,
+        clientName: activeClientName,
         clientEmail: clientEmail.trim(),
         message: message.trim() || undefined,
       });
@@ -289,13 +298,7 @@ export default function GigDetailPage({
         {!showBookingForm ? (
           <button
             id="book-gig-btn"
-            onClick={() => {
-              if (!userName) {
-                alert("Please set your name in the header first.");
-                return;
-              }
-              setShowBookingForm(true);
-            }}
+            onClick={() => setShowBookingForm(true)}
             className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold text-lg hover:shadow-lg hover:shadow-indigo-500/25 transition-all hover:-translate-y-0.5"
           >
             Book This Gig — ₹{gig.rate.toLocaleString()}
@@ -307,17 +310,32 @@ export default function GigDetailPage({
           >
             <h3 className="text-lg font-semibold">Book This Gig</h3>
 
-            {/* Client name (read-only) */}
+            {/* Client name */}
             <div>
-              <label className="block text-sm font-medium mb-1.5">
-                Your Name
+              <label
+                htmlFor="booking-client-name"
+                className="block text-sm font-medium mb-1.5"
+              >
+                Your Name <span className="text-red-400">*</span>
               </label>
-              <input
-                type="text"
-                value={userName}
-                disabled
-                className="opacity-60 cursor-not-allowed"
-              />
+              {userName ? (
+                <input
+                  id="booking-client-name"
+                  type="text"
+                  value={userName}
+                  disabled
+                  className="opacity-60 cursor-not-allowed"
+                />
+              ) : (
+                <input
+                  id="booking-client-name"
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="Your display name"
+                  required
+                />
+              )}
             </div>
 
             {/* Email */}
@@ -376,7 +394,11 @@ export default function GigDetailPage({
               </button>
               <button
                 type="submit"
-                disabled={!clientEmail.trim() || isBooking}
+                disabled={
+                  (!userName && !clientName.trim()) ||
+                  !clientEmail.trim() ||
+                  isBooking
+                }
                 className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isBooking ? "Booking..." : "Confirm Booking"}

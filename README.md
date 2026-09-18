@@ -66,4 +66,6 @@ Enter any display name to get started.
 
 ## Live URL
 
-<!-- TODO: Add Vercel deployment URL -->
+**Deployment Status:** Pending deployment.
+Once deployed to Vercel, replace this placeholder with your public URL:
+`https://<project-name>.vercel.app`
