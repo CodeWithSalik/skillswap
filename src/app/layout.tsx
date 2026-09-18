@@ -19,7 +19,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SkillSwap — Creator Gig Marketplace",
+  title: "SkillSwap — Creator Ledger",
   description:
     "A creator gig marketplace where young creators monetize their skills and clients book verified services. Design, editing, tutoring, music, and more.",
   keywords: [
@@ -28,7 +28,19 @@ export const metadata: Metadata = {
     "freelance",
     "skills",
     "booking",
+    "creator ledger",
   ],
+  openGraph: {
+    title: "SkillSwap — Creator Ledger",
+    description:
+      "A creator gig marketplace where young creators monetize their skills and clients book verified services.",
+    type: "website",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export default function RootLayout({
